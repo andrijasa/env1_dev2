@@ -53,13 +53,18 @@ attacker_contract = web3.eth.contract(
     address=Web3.toChecksumAddress(contracts['Attacker']['address']),
     abi=contracts['Attacker']['abi']
 )
+
+TestFallback_contract = web3.eth.contract(
+    address=Web3.toChecksumAddress(contracts['TestFallback']['address']),
+    abi=contracts['TestFallback']['abi']
+)
 # Specify the amount of Ether to send (e.g., 1 Ether)
 amount_to_send = web3.toWei(1, 'ether')
 
 # Prepare the transaction
 transaction = {
     'from': sender_account,
-    'to': vulnerable_contract.address,
+    'to': attacker_contract.address,
     'value': amount_to_send,
     'gas': 100000,  # Minimum gas for Ether transfer
     'gasPrice': web3.toWei('20', 'gwei')  # Adjust gas price if needed

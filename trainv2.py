@@ -35,16 +35,16 @@ class ReentrancyDetector:
         balance_diff = self.previous_balance - current_balance
 
         # Convert balances to Gwei for printing
-        previous_balance_gwei = web3.fromWei(self.previous_balance, 'gwei')
-        current_balance_gwei = web3.fromWei(current_balance, 'gwei')
+        previous_balance_gwei = web3.toWei(self.previous_balance, 'wei')
+        current_balance_gwei = web3.toWei(current_balance, 'wei')
 
-        print(f"Previous balance: {previous_balance_gwei} Gwei")
-        print(f"Current balance: {current_balance_gwei} Gwei")
+        print(f"Previous balance: {previous_balance_gwei} wei")
+        print(f"Current balance: {current_balance_gwei} wei")
 
         # Check if balance_diff is positive before converting
         if balance_diff > 0:
-            balance_diff_gwei = web3.fromWei(balance_diff, 'gwei')
-            print(f"Potential reentrancy attack detected! Contract balance decreased by {balance_diff_gwei} Gwei.")
+            balance_diff_gwei = web3.toWei(balance_diff, 'wei')
+            print(f"Potential reentrancy attack detected! Contract balance decreased by {balance_diff_gwei} wei.")
             self.balance_diffs.append(balance_diff)  # Track balance reduction
         else:
             print("No abnormal state change detected.")
@@ -106,6 +106,7 @@ def simulate_attack(amount_gwei):
         'from': web3.eth.accounts[1], 'value': amount_gwei, 'gas': 5000000  # Increased gas limit
     })
     
+    
     # Wait for transaction to be mined
     receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
     print(f"Attack transaction mined in block {receipt.blockNumber}")
@@ -119,16 +120,16 @@ def run_detection_cycle():
     detector.detect_reentrancy()
 
 # Check the balance of the vulnerable contract and deposit 5 ETH if needed
-# check_and_deposit_funds(vulnerable_contract)
+check_and_deposit_funds(vulnerable_contract)
 # check_and_deposit_funds(attacker_contract)
 
 # Example simulation:
-simulate_attack(web3.toWei(10, 'gwei'))  # Simulate an attack with 1000 Gwei
+simulate_attack(web3.toWei(0.1, 'ether'))  # Simulate an attack with 1000 Gwei
 run_detection_cycle()  # Run detection after the attack
 
 # Repeat this loop for recursive attacks with 100 Gwei
 for i in range(3):
-    simulate_attack(web3.toWei(1, 'gwei'))  # Simulate small attacks with 100 Gwei
+    simulate_attack(web3.toWei(0.01, 'ether'))  # Simulate small attacks with 100 Gwei
     run_detection_cycle()  # Run detection after each attack
 
 # Final balance difference report
