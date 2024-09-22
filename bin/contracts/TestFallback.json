@@ -1,0 +1,282 @@
+{
+    "contractName": "TestFallback",
+    "abi": [
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "balance",
+                    "type": "uint256"
+                }
+            ],
+            "name": "FallbackTriggered",
+            "type": "event"
+        },
+        {
+            "stateMutability": "payable",
+            "type": "fallback"
+        }
+    ],
+    "metadata": "{\"compiler\":{\"version\":\"0.8.27+commit.40a35a09\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"}],\"name\":\"FallbackTriggered\",\"type\":\"event\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"c:/Users/andri/dev/github/smartcontractdrlfuz/env1_dev2/contracts/TestFallback.sol\":\"TestFallback\"},\"evmVersion\":\"cancun\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"c:/Users/andri/dev/github/smartcontractdrlfuz/env1_dev2/contracts/TestFallback.sol\":{\"keccak256\":\"0x50b5fe457ef4382d7188294c5d065bd1fe816f7ac6bda227aa7ed6e1eb9100bf\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5886949f25d583405ee198e968807c5a761e6e87175482dc4efa9d21ddf4a125\",\"dweb:/ipfs/QmRkum9KvCszG9KzrP6Bc5AczZ6qzBon49JJoGxdoEbuVo\"]}},\"version\":1}",
+    "bytecode": "608080604052346013576064908160188239f35b5f80fdfe7fbcb33634347fed469e82cf9af84e72f83d9ae2d510553135fa3b8ea727ac2c3f6020608080604052478152a100fea26469706673582212207275c19c049989cbd2d10ea4ae7fabaf0e802bcdebb2e8702bef0b3bb47e7f0f64736f6c634300081b0033",
+    "deployedBytecode": "7fbcb33634347fed469e82cf9af84e72f83d9ae2d510553135fa3b8ea727ac2c3f6020608080604052478152a100fea26469706673582212207275c19c049989cbd2d10ea4ae7fabaf0e802bcdebb2e8702bef0b3bb47e7f0f64736f6c634300081b0033",
+    "sourceMap": "60:252:0:-:0;;;;;;;;;;;;;;;;;",
+    "deployedSourceMap": "261:40:0:-:0;60:252;;;;;279:21;60:252;;261:40;60:252",
+    "sourcePath": "c:/Users/andri/dev/github/smartcontractdrlfuz/env1_dev2/contracts/TestFallback.sol",
+    "compiler": {
+        "name": "solc",
+        "version": "0.8.27+commit.40a35a09"
+    },
+    "ast": {
+        "absolutePath": "c:/Users/andri/dev/github/smartcontractdrlfuz/env1_dev2/contracts/TestFallback.sol",
+        "exportedSymbols": {
+            "TestFallback": [
+                18
+            ]
+        },
+        "id": 19,
+        "license": "MIT",
+        "nodeType": "SourceUnit",
+        "nodes": [
+            {
+                "id": 1,
+                "literals": [
+                    "solidity",
+                    "^",
+                    "0.8",
+                    ".0"
+                ],
+                "nodeType": "PragmaDirective",
+                "src": "33:23:0"
+            },
+            {
+                "abstract": false,
+                "baseContracts": [],
+                "canonicalName": "TestFallback",
+                "contractDependencies": [],
+                "contractKind": "contract",
+                "fullyImplemented": true,
+                "id": 18,
+                "linearizedBaseContracts": [
+                    18
+                ],
+                "name": "TestFallback",
+                "nameLocation": "69:12:0",
+                "nodeType": "ContractDefinition",
+                "nodes": [
+                    {
+                        "anonymous": false,
+                        "eventSelector": "bcb33634347fed469e82cf9af84e72f83d9ae2d510553135fa3b8ea727ac2c3f",
+                        "id": 5,
+                        "name": "FallbackTriggered",
+                        "nameLocation": "95:17:0",
+                        "nodeType": "EventDefinition",
+                        "parameters": {
+                            "id": 4,
+                            "nodeType": "ParameterList",
+                            "parameters": [
+                                {
+                                    "constant": false,
+                                    "id": 3,
+                                    "indexed": false,
+                                    "mutability": "mutable",
+                                    "name": "balance",
+                                    "nameLocation": "121:7:0",
+                                    "nodeType": "VariableDeclaration",
+                                    "scope": 5,
+                                    "src": "113:15:0",
+                                    "stateVariable": false,
+                                    "storageLocation": "default",
+                                    "typeDescriptions": {
+                                        "typeIdentifier": "t_uint256",
+                                        "typeString": "uint256"
+                                    },
+                                    "typeName": {
+                                        "id": 2,
+                                        "name": "uint256",
+                                        "nodeType": "ElementaryTypeName",
+                                        "src": "113:7:0",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                        }
+                                    },
+                                    "visibility": "internal"
+                                }
+                            ],
+                            "src": "112:17:0"
+                        },
+                        "src": "89:41:0"
+                    },
+                    {
+                        "body": {
+                            "id": 16,
+                            "nodeType": "Block",
+                            "src": "245:64:0",
+                            "statements": [
+                                {
+                                    "eventCall": {
+                                        "arguments": [
+                                            {
+                                                "expression": {
+                                                    "arguments": [
+                                                        {
+                                                            "id": 11,
+                                                            "name": "this",
+                                                            "nodeType": "Identifier",
+                                                            "overloadedDeclarations": [],
+                                                            "referencedDeclaration": 4294967268,
+                                                            "src": "287:4:0",
+                                                            "typeDescriptions": {
+                                                                "typeIdentifier": "t_contract$_TestFallback_$18",
+                                                                "typeString": "contract TestFallback"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "expression": {
+                                                        "argumentTypes": [
+                                                            {
+                                                                "typeIdentifier": "t_contract$_TestFallback_$18",
+                                                                "typeString": "contract TestFallback"
+                                                            }
+                                                        ],
+                                                        "id": 10,
+                                                        "isConstant": false,
+                                                        "isLValue": false,
+                                                        "isPure": true,
+                                                        "lValueRequested": false,
+                                                        "nodeType": "ElementaryTypeNameExpression",
+                                                        "src": "279:7:0",
+                                                        "typeDescriptions": {
+                                                            "typeIdentifier": "t_type$_t_address_$",
+                                                            "typeString": "type(address)"
+                                                        },
+                                                        "typeName": {
+                                                            "id": 9,
+                                                            "name": "address",
+                                                            "nodeType": "ElementaryTypeName",
+                                                            "src": "279:7:0",
+                                                            "typeDescriptions": {}
+                                                        }
+                                                    },
+                                                    "id": 12,
+                                                    "isConstant": false,
+                                                    "isLValue": false,
+                                                    "isPure": false,
+                                                    "kind": "typeConversion",
+                                                    "lValueRequested": false,
+                                                    "nameLocations": [],
+                                                    "names": [],
+                                                    "nodeType": "FunctionCall",
+                                                    "src": "279:13:0",
+                                                    "tryCall": false,
+                                                    "typeDescriptions": {
+                                                        "typeIdentifier": "t_address",
+                                                        "typeString": "address"
+                                                    }
+                                                },
+                                                "id": 13,
+                                                "isConstant": false,
+                                                "isLValue": false,
+                                                "isPure": false,
+                                                "lValueRequested": false,
+                                                "memberLocation": "293:7:0",
+                                                "memberName": "balance",
+                                                "nodeType": "MemberAccess",
+                                                "src": "279:21:0",
+                                                "typeDescriptions": {
+                                                    "typeIdentifier": "t_uint256",
+                                                    "typeString": "uint256"
+                                                }
+                                            }
+                                        ],
+                                        "expression": {
+                                            "argumentTypes": [
+                                                {
+                                                    "typeIdentifier": "t_uint256",
+                                                    "typeString": "uint256"
+                                                }
+                                            ],
+                                            "id": 8,
+                                            "name": "FallbackTriggered",
+                                            "nodeType": "Identifier",
+                                            "overloadedDeclarations": [],
+                                            "referencedDeclaration": 5,
+                                            "src": "261:17:0",
+                                            "typeDescriptions": {
+                                                "typeIdentifier": "t_function_event_nonpayable$_t_uint256_$returns$__$",
+                                                "typeString": "function (uint256)"
+                                            }
+                                        },
+                                        "id": 14,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": false,
+                                        "kind": "functionCall",
+                                        "lValueRequested": false,
+                                        "nameLocations": [],
+                                        "names": [],
+                                        "nodeType": "FunctionCall",
+                                        "src": "261:40:0",
+                                        "tryCall": false,
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_tuple$__$",
+                                            "typeString": "tuple()"
+                                        }
+                                    },
+                                    "id": 15,
+                                    "nodeType": "EmitStatement",
+                                    "src": "256:45:0"
+                                }
+                            ]
+                        },
+                        "id": 17,
+                        "implemented": true,
+                        "kind": "fallback",
+                        "modifiers": [],
+                        "name": "",
+                        "nameLocation": "-1:-1:-1",
+                        "nodeType": "FunctionDefinition",
+                        "parameters": {
+                            "id": 6,
+                            "nodeType": "ParameterList",
+                            "parameters": [],
+                            "src": "225:2:0"
+                        },
+                        "returnParameters": {
+                            "id": 7,
+                            "nodeType": "ParameterList",
+                            "parameters": [],
+                            "src": "245:0:0"
+                        },
+                        "scope": 18,
+                        "src": "217:92:0",
+                        "stateMutability": "payable",
+                        "virtual": false,
+                        "visibility": "external"
+                    }
+                ],
+                "scope": 19,
+                "src": "60:252:0",
+                "usedErrors": [],
+                "usedEvents": [
+                    5
+                ]
+            }
+        ],
+        "src": "33:281:0"
+    },
+    "functionHashes": {},
+    "gasEstimates": {
+        "creation": {
+            "codeDepositCost": "20000",
+            "executionCost": "81",
+            "totalCost": "20081"
+        },
+        "external": {
+            "": "1050"
+        }
+    }
+}

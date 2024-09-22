@@ -1,5 +1,4 @@
 {
-  "VulnerableContract": "0x0DA1b2beD92469C14dEC2a63bA2cd7332733b229",
-  "Attacker": "0x423210fa3be83c05094DAB43E3caAB39AbCAb19A",
-  "TestFallback": "0x2271c84C9AEd1b2768a06EbAcA68E919949958e9"
+  "VulnerableContract": "0xd1c5aB6b13a137ea0Ff13d06a58166d2F6fB3E68",
+  "Attacker": "0x36447BfFAa3E260DB50CAc4Da53cEBf03f3F4ec3"
 }

@@ -15,10 +15,10 @@ else:
     raise Exception("Failed to connect to Ethereum node.")
 
 # Set default account to send Ether from
-sender_account = web3.eth.accounts[0]  # Use the first Ganache account
+sender_account = "0x9F35Db0A3bd30C44f9602D05961A53A3Cf22A3DE"  # Use the first Ganache account
 
 # Set default account to send Ether from
-sender_account = web3.eth.accounts[0]  # Use the first Ganache account
+# sender_account = web3.eth.accounts[0]  # Use the first Ganache account
 
 # Helper function to load contract ABIs and addresses
 def load_contracts(path, deployed_addresses):
@@ -54,19 +54,15 @@ attacker_contract = web3.eth.contract(
     abi=contracts['Attacker']['abi']
 )
 
-TestFallback_contract = web3.eth.contract(
-    address=Web3.toChecksumAddress(contracts['TestFallback']['address']),
-    abi=contracts['TestFallback']['abi']
-)
 # Specify the amount of Ether to send (e.g., 1 Ether)
-amount_to_send = web3.toWei(1, 'ether')
+amount_to_send = web3.toWei(99, 'ether')
 
 # Prepare the transaction
 transaction = {
     'from': sender_account,
-    'to': attacker_contract.address,
+    'to': "0x14583DE8933a9eaFc74f18628b6637C11B14BF06",
     'value': amount_to_send,
-    'gas': 100000,  # Minimum gas for Ether transfer
+    'gas': 500000,  # Minimum gas for Ether transfer
     'gasPrice': web3.toWei('20', 'gwei')  # Adjust gas price if needed
 }
 

@@ -127,10 +127,10 @@ check_and_deposit_funds(vulnerable_contract)
 simulate_attack(web3.toWei(0.1, 'ether'))  # Simulate an attack with 1000 Gwei
 run_detection_cycle()  # Run detection after the attack
 
-# Repeat this loop for recursive attacks with 100 Gwei
-for i in range(3):
-    simulate_attack(web3.toWei(0.01, 'ether'))  # Simulate small attacks with 100 Gwei
-    run_detection_cycle()  # Run detection after each attack
+# # Repeat this loop for recursive attacks with 100 Gwei
+# for i in range(3):
+#     simulate_attack(web3.toWei(0.01, 'ether'))  # Simulate small attacks with 100 Gwei
+#     run_detection_cycle()  # Run detection after each attack
 
 # Final balance difference report
 tracked_balance_diffs = [web3.fromWei(bal_diff, 'gwei') for bal_diff in detector.balance_diffs]

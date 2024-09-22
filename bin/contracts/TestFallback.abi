@@ -1,0 +1,1 @@
+[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"balance","type":"uint256"}],"name":"FallbackTriggered","type":"event"},{"stateMutability":"payable","type":"fallback"}]
