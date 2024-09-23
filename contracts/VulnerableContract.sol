@@ -16,15 +16,19 @@ contract VulnerableContract {
 
     // Vulnerable withdraw function
     function withdraw(uint256 amount) public {
-        uint256 vulnBalance = address(this).balance; //balances[msg.sender];
+        uint256 vulnBalance = balances[msg.sender]; //address(this).balance; //
+
         require(vulnBalance >= amount, "Insufficient balance in contract");
 
         // Transfer Ether using .call to ensure enough gas is forwarded
-        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        (bool success, ) = msg.sender.call{value: amount}("");
+        // (bool success, ) = payable(msg.sender).call{value: amount}("");
         require(success, "Transfer failed");
 
         // Update the balance after the transfer
-        balances[msg.sender] -= amount;
+        
+        //balances[msg.sender] -= amount;
+        vulnBalance = address(this).balance;
         emit Withdraw(msg.sender, amount, success);
     }
 

@@ -46,9 +46,6 @@ class ReentrancyDetector:
         self.previous_block = latest_block
 
     
-
-    
-
     def analyze_transaction(self, tx_hash):
         try:
             trace = web3.manager.request_blocking('debug_traceTransaction', [
@@ -59,9 +56,15 @@ class ReentrancyDetector:
             # Recursively convert the trace from AttributeDict to regular dictionaries
             trace = convert_attribute_dict(trace)
 
-            # print(json.dumps(trace, indent=4))  # Print the full trace for inspection
+            # Save the trace to a JSON file
+            with open(f"trace_{tx_hash.hex()}.json", "w") as f:
+                json.dump(trace, f, indent=4)
+            
+            call_count = 0
+            for log in trace.get('structLogs', []):
+                call_count += self.count_withdraw_calls(log)
 
-            call_count = self.count_withdraw_calls(trace)
+            print(f"Count CALL to contract: {call_count}")
 
             if call_count > 1:
                 print(f"Reentrancy attack detected in transaction {tx_hash.hex()}! withdraw() called {call_count} times.")
@@ -72,29 +75,48 @@ class ReentrancyDetector:
 
 
 
-    def count_withdraw_calls(self, call):
+    def count_withdraw_calls(self, log):
         call_count = 0
-        to_address = call.get('to', '').lower()
-        contract_address = self.vulnerable_contract.address.lower()
+        stack = log.get('stack', [])
+        op = log.get('op', '')
+        depth = log.get('depth', 0)
 
-        if call.get('type') == 'CALL' and to_address == contract_address:
-            print(f"Detected CALL to contract: {to_address}")
-            input_data = call.get('input', '')
-            if input_data.startswith(self.withdraw_function_selector()):
-                print("Detected withdraw() function call.")
-                call_count += 1
+        # Check for a CALL operation and extract the to_address
+        if op in ['CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL']:
+            if len(stack) >= 2:  # Ensure there are at least two items in the stack
+                to_address = '0x' + stack[-2][-40:].lower()  # Extract the last 40 characters and add '0x' prefix
+                contract_address = self.vulnerable_contract.address.lower()
 
-        for subcall in call.get('calls', []):
-            call_count += self.count_withdraw_calls(subcall)
+                if to_address == contract_address:
+                    # Iterate through the stack to find the function selector
+                    for i in range(len(stack) - 1):
+                         if stack[i].endswith(self.withdraw_function_selector()[-8:]):  # Check if it ends with the function selector
+                            # The next item in the stack is the input data
+                            #input_data = stack[-1]
+                            
+                            # Convert the input data from hex to decimal
+                            #input_data_decimal = int(input_data, 16)  # Convert hex to decimal
+                            
+                            print("Detected withdraw() function call.")
+                            # print(f"Detected withdraw() function call. Input data (decimal): {input_data_decimal}")
+                            call_count += 1
+                            
+                            # # Verify if this is the withdraw function call
+                            # if input_data.startswith(self.withdraw_function_selector()):
+                            #     print("Detected withdraw() function call.")
+                            #     call_count += 1
+                            # break  # Exit loop after finding the function selector
 
         return call_count
 
     def withdraw_function_selector(self):
         # Get the function selector for withdraw()
-        function_signature = 'withdraw()'
+        function_signature = 'withdraw(uint256)'
         selector = web3.keccak(text=function_signature)[:4]
         selector_hex = '0x' + selector.hex()
         return selector_hex
+
+
 
 # Load deployed contracts
 with open('deployed_contracts.json') as f:
@@ -113,7 +135,7 @@ def check_and_deposit_funds(contract, required_balance_eth):
     print(f"Vulnerable contract current balance: {balance_in_ether} ETH")
 
     if balance_in_ether < required_balance_eth:
-        deposit_amount = required_balance_eth - balance_in_ether
+        deposit_amount = required_balance_eth - float(balance_in_ether)
         print(f"Depositing {deposit_amount} Ether to the vulnerable contract.")
         tx_hash = contract.functions.deposit().transact({
             'from': web3.eth.accounts[0], 'value': web3.toWei(deposit_amount, 'ether')
@@ -150,10 +172,6 @@ def simulate_targeted_attack(amount_ether, target_drain_ether):
     
     print(f"Vulnerable contract balance: {web3.fromWei(vulnerable_balance, 'ether')} ETH")
     print(f"Attacker's balance: {web3.fromWei(attacker_balance, 'ether')} ETH")
-
-
-
-
 
 
 def fund_attacker_account():
@@ -232,11 +250,15 @@ def simulate_attack():
 # run_detection_cycle()  # Run detection after the attack
 
 
-check_and_deposit_funds(attacker_contract, 1)
-check_and_deposit_funds(vulnerable_contract, 1)
-simulate_targeted_attack(0.1, 0.5)  # Simulate an attack with 0.1 Ether, targeting to drain 0.5 Ether
+# check_and_deposit_funds(attacker_contract, 1)
+check_and_deposit_funds(vulnerable_contract, 0.1)
+simulate_targeted_attack(0.01, 0.05)  # Simulate an attack with 0.1 Ether, targeting to drain 0.5 Ether
 # print_attacker_eth_balance()  # Should reflect the additional drained amount
 # print_vulnerable_contract_balance()  # Should reflect the reduced balance
-# run_detection_cycle()  # Run detection after the attack
+run_detection_cycle()  # Run detection after the attack
+# for i in range(5):
+#     check_and_deposit_funds(vulnerable_contract, 0.1)
+#     simulate_targeted_attack(0.01, 0.1)  # Simulate small attacks
+#     run_detection_cycle()  # Run detection after each attack
 
 #test_vulnerable_contract()

