@@ -56,15 +56,15 @@ class ReentrancyDetector:
             # Recursively convert the trace from AttributeDict to regular dictionaries
             trace = convert_attribute_dict(trace)
 
-            # Save the trace to a JSON file
-            with open(f"trace_{tx_hash.hex()}.json", "w") as f:
-                json.dump(trace, f, indent=4)
+            # # Save the trace to a JSON file
+            # with open(f"trace_{tx_hash.hex()}.json", "w") as f:
+            #     json.dump(trace, f, indent=4)
             
             call_count = 0
             for log in trace.get('structLogs', []):
                 call_count += self.count_withdraw_calls(log)
 
-            print(f"Count CALL to contract: {call_count}")
+            # print(f"Count CALL to contract: {call_count}")
 
             if call_count > 1:
                 print(f"Reentrancy attack detected in transaction {tx_hash.hex()}! withdraw() called {call_count} times.")
@@ -97,7 +97,7 @@ class ReentrancyDetector:
                             # Convert the input data from hex to decimal
                             #input_data_decimal = int(input_data, 16)  # Convert hex to decimal
                             
-                            print("Detected withdraw() function call.")
+                            #print("Detected withdraw() function call.")
                             # print(f"Detected withdraw() function call. Input data (decimal): {input_data_decimal}")
                             call_count += 1
                             
@@ -237,28 +237,15 @@ def simulate_attack():
     print(f"Vulnerable contract balance: {web3.fromWei(vulnerable_balance, 'ether')} ETH")
     print(f"Attacker's balance: {web3.fromWei(attacker_balance, 'ether')} ETH")
 
-#simulate_attack()
-
-# # Fund the attacker account if necessary
-# fund_attacker_account()
-
-# # Example simulation:
-# check_and_deposit_funds(vulnerable_contract, 1)  # Ensure initial balance
-# simulate_attack(0.1)  # Simulate an attack with 0.1 Ether
-# print_attacker_eth_balance()
-# print_vulnerable_contract_balance()
-# run_detection_cycle()  # Run detection after the attack
 
 
 # check_and_deposit_funds(attacker_contract, 1)
 check_and_deposit_funds(vulnerable_contract, 0.1)
 simulate_targeted_attack(0.01, 0.05)  # Simulate an attack with 0.1 Ether, targeting to drain 0.5 Ether
-# print_attacker_eth_balance()  # Should reflect the additional drained amount
-# print_vulnerable_contract_balance()  # Should reflect the reduced balance
 run_detection_cycle()  # Run detection after the attack
-# for i in range(5):
-#     check_and_deposit_funds(vulnerable_contract, 0.1)
-#     simulate_targeted_attack(0.01, 0.1)  # Simulate small attacks
-#     run_detection_cycle()  # Run detection after each attack
+for i in range(5):
+    check_and_deposit_funds(vulnerable_contract, 0.1)
+    simulate_targeted_attack(0.01, 0.1)  # Simulate small attacks
+    run_detection_cycle()  # Run detection after each attack
 
 #test_vulnerable_contract()
