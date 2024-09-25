@@ -243,9 +243,9 @@ def simulate_attack():
 check_and_deposit_funds(vulnerable_contract, 0.1)
 simulate_targeted_attack(0.01, 0.05)  # Simulate an attack with 0.1 Ether, targeting to drain 0.5 Ether
 run_detection_cycle()  # Run detection after the attack
-for i in range(5):
-    check_and_deposit_funds(vulnerable_contract, 0.1)
-    simulate_targeted_attack(0.01, 0.1)  # Simulate small attacks
-    run_detection_cycle()  # Run detection after each attack
+# for i in range(5):
+#     check_and_deposit_funds(vulnerable_contract, 0.1)
+#     simulate_targeted_attack(0.01, 0.1)  # Simulate small attacks
+#     run_detection_cycle()  # Run detection after each attack
 
 #test_vulnerable_contract()

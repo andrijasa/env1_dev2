@@ -3,17 +3,29 @@ from gymnasium import spaces
 import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.env_util import make_vec_env
 from web3 import Web3, middleware
 from web3.middleware import geth_poa_middleware
 import json
 import os
 from web3.datastructures import AttributeDict
+from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnRewardThreshold
+from stable_baselines3.common.logger import configure
+import os
+
+
 
 # Simulating Smart Contract and Ganache Blockchain Environment
 ganache_url = "http://127.0.0.1:7545"
 CONTRACTS_PATH = "./build/contracts"
 web3 = Web3(Web3.HTTPProvider(ganache_url))
 web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+# Define the TensorBoard log directory
+log_dir = "./ppo_tensorboard/"
+os.makedirs(log_dir, exist_ok=True)
+
 
 # Helper function to load contract ABIs and addresses
 def load_contracts(path, deployed_addresses):
@@ -68,7 +80,7 @@ def transaction_middleware(make_request, web3):
     def middleware_fn(method, params):
         if method == "eth_sendTransaction":
             tx = params[0]
-            print(f"Intercepted transaction: {tx}")
+            #print(f"Intercepted transaction: {tx}")
             if risk_score(tx):
                 print("Transaction blocked due to high risk")
                 return {"error": "Transaction blocked by middleware"}
@@ -76,7 +88,7 @@ def transaction_middleware(make_request, web3):
     return middleware_fn
 
 # Inject middleware into Web3
-web3.middleware_onion.add(transaction_middleware)
+#web3.middleware_onion.add(transaction_middleware)
 
 def check_and_deposit_funds(contract, required_balance_eth):
     balance = web3.eth.get_balance(contract.address)
@@ -94,14 +106,17 @@ def check_and_deposit_funds(contract, required_balance_eth):
         print("Deposit complete, vulnerable contract balance replenished.")
 
 def run_detection_cycle():
-    detector.detect_reentrancy()
+    return detector.detect_reentrancy()
 
 # Custom Environment for Reinforcement Learning
 class ReentrancyEnv(gym.Env):
-    def __init__(self, vulnerable_contract, attacker_contract, attacker_account, detector):
+    metadata = {'render_modes': ['human', 'rgb_array']}
+
+    def __init__(self, render_mode=None):
         super(ReentrancyEnv, self).__init__()
         self.action_space = spaces.Discrete(2)  # Block or Allow transaction
-        self.observation_space = spaces.Box(low=0, high=1, shape=(3,), dtype=np.float32)
+        # Observation space: current contract balance (simplified)
+        self.observation_space = spaces.Box(low=0, high=100, shape=(3,), dtype=np.float32)
         self.vulnerable_contract = vulnerable_contract
         self.attacker_contract = attacker_contract
         self.attacker_account = attacker_account
@@ -109,6 +124,11 @@ class ReentrancyEnv(gym.Env):
         self.state = [0, 0, 0]  # Example observation: [gas, sender_balance, is_malicious]
         self.drained_counter = {}  # Track funds drained by address
         self.attack_threshold = 3  # Number of times funds need to be drained for flagging
+        self.max_steps = 100  # Maximum steps per episode
+        self.current_step = 0
+        self.render_mode = render_mode
+        #self.contract_balance = web3.eth.get_balance(self.vulnerable_contract.address)
+        
 
     def reset(self, seed=None, **kwargs):
         if seed is not None:
@@ -136,11 +156,43 @@ class ReentrancyEnv(gym.Env):
         else:
             reward = 10  # Reward for blocking a transaction
 
-        terminated = np.random.random() > 0.95
-        truncated = False
+        # Update observation (contract balance and other states)
+        # contract_balance = web3.eth.get_balance(self.vulnerable_contract.address)
+        vulnerable_contract_balance = web3.eth.get_balance(vulnerable_contract.address)
+        self.vulnerable_contract_balance_in_ether = web3.fromWei(vulnerable_contract_balance, 'ether')
+        observation = np.array([self.vulnerable_contract_balance_in_ether, call_count, web3.fromWei(funds_drained, 'ether')], dtype=np.float32)
+        
+        # Normalize observation if necessary (e.g., dividing by a large number to keep values small)
+        #observation = observation / 1e18  # Convert Wei to Ether for balance
+        #observation = np.clip(observation, -1e6, 1e6)
 
-        return self.state, reward, terminated, truncated, {'funds_drained': funds_drained, 'call_count': call_count}
+        self.current_step += 1
+
+        # Check if the episode is done
+        terminated = self.current_step >= self.max_steps
+        truncated = False  # No truncation for now
+        info = {}
+
+        print(f"Observation: {observation}")
+        print(f"Action logits: {action}")
+
+
+        if self.render_mode == 'human':
+            self.render()
+
+        return observation, reward, terminated, truncated, info
+
     
+    def render(self, mode='human'):
+        if mode == 'human':
+            
+            print(f"Step: {self.current_step}, Balance: {self.vulnerable_contract_balance_in_ether}")
+        elif mode == 'rgb_array':
+            pass
+
+    def close(self):
+        pass
+
     def _simulate_attacker(self):
         check_and_deposit_funds(vulnerable_contract, 0.001)
         reentrancy_detected, funds_drained = simulate_targeted_attack(0.0001, 0.0005)
@@ -149,7 +201,7 @@ class ReentrancyEnv(gym.Env):
 
 def simulate_targeted_attack(amount_ether, target_drain_ether):
     print(f"Simulating attack with {amount_ether} ETH, targeting to drain {target_drain_ether} ETH")
-
+    vulnerable_balance_before = web3.eth.get_balance(vulnerable_contract.address)
     attacker_balance = web3.eth.get_balance(web3.eth.accounts[1])
     required_amount = web3.toWei(amount_ether, 'ether')
     target_drain_amount = web3.toWei(target_drain_ether, 'ether')
@@ -170,8 +222,9 @@ def simulate_targeted_attack(amount_ether, target_drain_ether):
         print("Attack transaction mined.")
 
         # Check balances after the attack
-        vulnerable_balance = web3.eth.get_balance(vulnerable_contract.address)
-        funds_drained = web3.fromWei(web3.eth.get_balance(web3.eth.accounts[1]) - attacker_balance, 'ether')
+        vulnerable_balance_after = web3.eth.get_balance(vulnerable_contract.address)
+        #attacker_balance_after = web3.eth.get_balance(web3.eth.accounts[1])
+        funds_drained = vulnerable_balance_before - vulnerable_balance_after
 
         return True, funds_drained
 
@@ -271,11 +324,19 @@ class AttackerAgent:
 detector = ReentrancyDetector(vulnerable_contract)
 
 # Initialize the environment
-env = DummyVecEnv([lambda: ReentrancyEnv(vulnerable_contract, attacker_contract, attacker_account, detector)])
+#env = DummyVecEnv([lambda: ReentrancyEnv(vulnerable_contract, attacker_contract, attacker_account, detector)])
+#env = make_vec_env(lambda: ReentrancyEnv(render_mode='human'), n_envs=4)
+env = make_vec_env(lambda: ReentrancyEnv(render_mode='human'), n_envs=1)
 
-# PPO Training for Defender Agent
-model = PPO("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=10000)
+# Create the PPO model with TensorBoard logging enabled
+model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir)
+
+# Optionally, configure the logger to log additional metrics
+new_logger = configure(log_dir, ["stdout", "csv", "tensorboard"])
+model.set_logger(new_logger)
+
+# Train the model
+model.learn(total_timesteps=5000)
 
 # Save the trained model
 model.save("ppo_defender")
