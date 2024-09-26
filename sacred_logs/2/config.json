@@ -1,0 +1,12 @@
+{
+  "contracts_path": "./build/contracts",
+  "ganache_url": "http://127.0.0.1:7545",
+  "log_dir": "./ppo_tensorboard/",
+  "max_balance": 100.0,
+  "max_funds_drained": 1.0,
+  "max_gas": 500000,
+  "max_steps": 100,
+  "max_time": 60,
+  "seed": 796900588,
+  "total_timesteps": 5000
+}

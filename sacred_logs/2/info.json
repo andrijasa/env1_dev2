@@ -1,0 +1,32 @@
+{
+  "metrics": [
+    {
+      "id": "66f4664fe852ae3e40147ba8",
+      "name": "max_steps"
+    },
+    {
+      "id": "66f4664fe852ae3e40147baa",
+      "name": "max_balance"
+    },
+    {
+      "id": "66f4664fe852ae3e40147bac",
+      "name": "max_funds_drained"
+    },
+    {
+      "id": "66f4664fe852ae3e40147bae",
+      "name": "max_gas"
+    },
+    {
+      "id": "66f4664fe852ae3e40147bb0",
+      "name": "max_time"
+    },
+    {
+      "id": "66f4664fe852ae3e40147bb2",
+      "name": "total_timesteps"
+    },
+    {
+      "id": "66f4664fe852ae3e40147bb4",
+      "name": "Timestamp_reward"
+    }
+  ]
+}

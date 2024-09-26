@@ -1,0 +1,236 @@
+{
+  "episode_10_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:50.589249"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "py/object": "numpy.ndarray",
+        "values": [
+          -7880.0
+        ]
+      }
+    ]
+  },
+  "episode_1_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:41.327115"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "values": [
+          -7895.0
+        ]
+      }
+    ]
+  },
+  "episode_2_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:42.359352"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "values": [
+          -7790.0
+        ]
+      }
+    ]
+  },
+  "episode_3_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:43.408115"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "py/object": "numpy.ndarray",
+        "values": [
+          -7560.0
+        ]
+      }
+    ]
+  },
+  "episode_4_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:44.442388"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "py/object": "numpy.ndarray",
+        "values": [
+          -6880.0
+        ]
+      }
+    ]
+  },
+  "episode_5_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:45.419545"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "py/object": "numpy.ndarray",
+        "values": [
+          -7695.0
+        ]
+      }
+    ]
+  },
+  "episode_6_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:46.409515"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "py/object": "numpy.ndarray",
+        "values": [
+          -7470.0
+        ]
+      }
+    ]
+  },
+  "episode_7_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:47.480299"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "py/object": "numpy.ndarray",
+        "values": [
+          -7370.0
+        ]
+      }
+    ]
+  },
+  "episode_8_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:48.559660"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "py/object": "numpy.ndarray",
+        "values": [
+          -7710.0
+        ]
+      }
+    ]
+  },
+  "episode_9_reward": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:13:49.581179"
+    ],
+    "values": [
+      {
+        "dtype": "float32",
+        "py/object": "numpy.ndarray",
+        "values": [
+          -7795.0
+        ]
+      }
+    ]
+  },
+  "max_balance": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:12:22.745740"
+    ],
+    "values": [
+      100.0
+    ]
+  },
+  "max_funds_drained": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:12:22.745740"
+    ],
+    "values": [
+      1.0
+    ]
+  },
+  "max_gas": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:12:22.745740"
+    ],
+    "values": [
+      500000
+    ]
+  },
+  "max_steps": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:12:22.745740"
+    ],
+    "values": [
+      100
+    ]
+  },
+  "max_time": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:12:22.745740"
+    ],
+    "values": [
+      60
+    ]
+  },
+  "total_timesteps": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2024-09-25T19:12:22.745740"
+    ],
+    "values": [
+      5000
+    ]
+  }
+}
