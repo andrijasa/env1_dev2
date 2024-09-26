@@ -1,122 +1,39 @@
-CUDA Available: True
-Current CUDA Device: 0
-Device Name: NVIDIA GeForce RTX 3070
-Using cuda device
+INFO - reentrancy_rl - Running command 'main'
+INFO - reentrancy_rl - Started run with ID "7"
+CUDA is not available. Falling back to CPU.
+Using cpu device
 Logging to ./ppo_tensorboard/
-Total Time: 00:00:02 | Episode Duration: 00:00:01 | Timestep: 100 | Episode: 1 | Mean Reward: -71.95
-Total Time: 00:00:03 | Episode Duration: 00:00:02 | Timestep: 200 | Episode: 2 | Mean Reward: -79.40
-Total Time: 00:00:04 | Episode Duration: 00:00:02 | Timestep: 300 | Episode: 3 | Mean Reward: -84.70
-Total Time: 00:00:05 | Episode Duration: 00:00:03 | Timestep: 400 | Episode: 4 | Mean Reward: -81.10
-Total Time: 00:00:06 | Episode Duration: 00:00:04 | Timestep: 500 | Episode: 5 | Mean Reward: -77.60
-Total Time: 00:00:07 | Episode Duration: 00:00:05 | Timestep: 600 | Episode: 6 | Mean Reward: -74.80
-Total Time: 00:00:08 | Episode Duration: 00:00:06 | Timestep: 700 | Episode: 7 | Mean Reward: -85.00
-Total Time: 00:00:09 | Episode Duration: 00:00:07 | Timestep: 800 | Episode: 8 | Mean Reward: -73.10
-Total Time: 00:00:10 | Episode Duration: 00:00:09 | Timestep: 900 | Episode: 9 | Mean Reward: -79.80
-Total Time: 00:00:11 | Episode Duration: 00:00:10 | Timestep: 1000 | Episode: 10 | Mean Reward: -89.30
-Total Time: 00:00:12 | Episode Duration: 00:00:11 | Timestep: 1100 | Episode: 11 | Mean Reward: -71.20
-Total Time: 00:00:13 | Episode Duration: 00:00:12 | Timestep: 1200 | Episode: 12 | Mean Reward: -80.95
-Total Time: 00:00:14 | Episode Duration: 00:00:13 | Timestep: 1300 | Episode: 13 | Mean Reward: -80.55
-Total Time: 00:00:15 | Episode Duration: 00:00:14 | Timestep: 1400 | Episode: 14 | Mean Reward: -82.55
-Total Time: 00:00:16 | Episode Duration: 00:00:15 | Timestep: 1500 | Episode: 15 | Mean Reward: -84.75
-Total Time: 00:00:17 | Episode Duration: 00:00:16 | Timestep: 1600 | Episode: 16 | Mean Reward: -75.20
-Total Time: 00:00:18 | Episode Duration: 00:00:17 | Timestep: 1700 | Episode: 17 | Mean Reward: -79.35
-Total Time: 00:00:19 | Episode Duration: 00:00:18 | Timestep: 1800 | Episode: 18 | Mean Reward: -86.95
-Total Time: 00:00:20 | Episode Duration: 00:00:19 | Timestep: 1900 | Episode: 19 | Mean Reward: -79.10
-Total Time: 00:00:22 | Episode Duration: 00:00:20 | Timestep: 2000 | Episode: 20 | Mean Reward: -83.65
+Total Time: 00:00:00 | Episode Duration: 00:00:00 | Timestep: 100 | Episode: 1 | Mean Reward: -76.35
+Total Time: 00:00:01 | Episode Duration: 00:00:01 | Timestep: 200 | Episode: 2 | Mean Reward: -86.25
+Total Time: 00:00:02 | Episode Duration: 00:00:02 | Timestep: 300 | Episode: 3 | Mean Reward: -80.60
+Total Time: 00:00:03 | Episode Duration: 00:00:03 | Timestep: 400 | Episode: 4 | Mean Reward: -79.05
+Total Time: 00:00:04 | Episode Duration: 00:00:04 | Timestep: 500 | Episode: 5 | Mean Reward: -85.50
+Total Time: 00:00:04 | Episode Duration: 00:00:04 | Timestep: 600 | Episode: 6 | Mean Reward: -81.70
+Total Time: 00:00:05 | Episode Duration: 00:00:05 | Timestep: 700 | Episode: 7 | Mean Reward: -78.00
+Total Time: 00:00:06 | Episode Duration: 00:00:06 | Timestep: 800 | Episode: 8 | Mean Reward: -79.45
+Total Time: 00:00:06 | Episode Duration: 00:00:06 | Timestep: 900 | Episode: 9 | Mean Reward: -77.60
+Total Time: 00:00:07 | Episode Duration: 00:00:07 | Timestep: 1000 | Episode: 10 | Mean Reward: -71.15
+Total Time: 00:00:08 | Episode Duration: 00:00:08 | Timestep: 1100 | Episode: 11 | Mean Reward: -81.45
+Total Time: 00:00:09 | Episode Duration: 00:00:09 | Timestep: 1200 | Episode: 12 | Mean Reward: -76.20
+Total Time: 00:00:09 | Episode Duration: 00:00:09 | Timestep: 1300 | Episode: 13 | Mean Reward: -72.15
+Total Time: 00:00:10 | Episode Duration: 00:00:10 | Timestep: 1400 | Episode: 14 | Mean Reward: -81.35
+Total Time: 00:00:11 | Episode Duration: 00:00:11 | Timestep: 1500 | Episode: 15 | Mean Reward: -71.70
+Total Time: 00:00:12 | Episode Duration: 00:00:12 | Timestep: 1600 | Episode: 16 | Mean Reward: -82.55
+Total Time: 00:00:12 | Episode Duration: 00:00:12 | Timestep: 1700 | Episode: 17 | Mean Reward: -76.90
+Total Time: 00:00:13 | Episode Duration: 00:00:13 | Timestep: 1800 | Episode: 18 | Mean Reward: -76.90
+Total Time: 00:00:14 | Episode Duration: 00:00:14 | Timestep: 1900 | Episode: 19 | Mean Reward: -80.95
+Total Time: 00:00:15 | Episode Duration: 00:00:15 | Timestep: 2000 | Episode: 20 | Mean Reward: -77.70
 ----------------------------------
 | rollout/           |           |
 |    ep_len_mean     | 100       |
-|    ep_rew_mean     | -8.00e+03 |
+|    ep_rew_mean     | -7.87e+03 |
 | time/              |           |
-|    fps             | 90        |
+|    fps             | 132       |
 |    iterations      | 1         |
-|    time_elapsed    | 22        |
+|    time_elapsed    | 15        |
 |    total_timesteps | 2048      |
 ----------------------------------
-Total Time: 00:00:25 | Episode Duration: 00:00:23 | Timestep: 2100 | Episode: 21 | Mean Reward: -79.15
-Total Time: 00:00:26 | Episode Duration: 00:00:24 | Timestep: 2200 | Episode: 22 | Mean Reward: -77.25
-Total Time: 00:00:27 | Episode Duration: 00:00:25 | Timestep: 2300 | Episode: 23 | Mean Reward: -70.85
-Total Time: 00:00:28 | Episode Duration: 00:00:26 | Timestep: 2400 | Episode: 24 | Mean Reward: -85.10
-Total Time: 00:00:29 | Episode Duration: 00:00:27 | Timestep: 2500 | Episode: 25 | Mean Reward: -80.45
-Total Time: 00:00:30 | Episode Duration: 00:00:29 | Timestep: 2600 | Episode: 26 | Mean Reward: -75.00
-Total Time: 00:00:31 | Episode Duration: 00:00:30 | Timestep: 2700 | Episode: 27 | Mean Reward: -76.50
-Total Time: 00:00:32 | Episode Duration: 00:00:31 | Timestep: 2800 | Episode: 28 | Mean Reward: -84.10
-Total Time: 00:00:33 | Episode Duration: 00:00:32 | Timestep: 2900 | Episode: 29 | Mean Reward: -82.45
-Total Time: 00:00:34 | Episode Duration: 00:00:33 | Timestep: 3000 | Episode: 30 | Mean Reward: -77.50
-Total Time: 00:00:35 | Episode Duration: 00:00:34 | Timestep: 3100 | Episode: 31 | Mean Reward: -76.75
-Total Time: 00:00:36 | Episode Duration: 00:00:35 | Timestep: 3200 | Episode: 32 | Mean Reward: -78.85
-Total Time: 00:00:37 | Episode Duration: 00:00:36 | Timestep: 3300 | Episode: 33 | Mean Reward: -84.40
-Total Time: 00:00:38 | Episode Duration: 00:00:37 | Timestep: 3400 | Episode: 34 | Mean Reward: -74.05
-Total Time: 00:00:39 | Episode Duration: 00:00:38 | Timestep: 3500 | Episode: 35 | Mean Reward: -84.20
-Total Time: 00:00:41 | Episode Duration: 00:00:39 | Timestep: 3600 | Episode: 36 | Mean Reward: -83.85
-Total Time: 00:00:42 | Episode Duration: 00:00:40 | Timestep: 3700 | Episode: 37 | Mean Reward: -78.75
-Total Time: 00:00:43 | Episode Duration: 00:00:41 | Timestep: 3800 | Episode: 38 | Mean Reward: -75.95
-Total Time: 00:00:44 | Episode Duration: 00:00:43 | Timestep: 3900 | Episode: 39 | Mean Reward: -74.95
-Total Time: 00:00:45 | Episode Duration: 00:00:43 | Timestep: 4000 | Episode: 40 | Mean Reward: -82.35
------------------------------------------
-| rollout/                |             |
-|    ep_len_mean          | 100         |
-|    ep_rew_mean          | -7.96e+03   |
-| time/                   |             |
-|    fps                  | 88          |
-|    iterations           | 2           |
-|    time_elapsed         | 46          |
-|    total_timesteps      | 4096        |
-| train/                  |             |
-|    approx_kl            | 0.000626069 |
-|    clip_fraction        | 0           |
-|    clip_range           | 0.2         |
-|    entropy_loss         | -0.693      |
-|    explained_variance   | -4.76e-05   |
-|    learning_rate        | 0.0003      |
-|    loss                 | 7.35e+05    |
-|    n_updates            | 10          |
-|    policy_gradient_loss | -0.000361   |
-|    value_loss           | 1.38e+06    |
------------------------------------------
-Total Time: 00:00:48 | Episode Duration: 00:00:47 | Timestep: 4100 | Episode: 41 | Mean Reward: -81.90
-Total Time: 00:00:49 | Episode Duration: 00:00:48 | Timestep: 4200 | Episode: 42 | Mean Reward: -78.70
-Total Time: 00:00:50 | Episode Duration: 00:00:49 | Timestep: 4300 | Episode: 43 | Mean Reward: -78.00
-Total Time: 00:00:51 | Episode Duration: 00:00:50 | Timestep: 4400 | Episode: 44 | Mean Reward: -73.95
-Total Time: 00:00:52 | Episode Duration: 00:00:51 | Timestep: 4500 | Episode: 45 | Mean Reward: -83.50
-Total Time: 00:00:53 | Episode Duration: 00:00:52 | Timestep: 4600 | Episode: 46 | Mean Reward: -72.25
-Total Time: 00:00:54 | Episode Duration: 00:00:53 | Timestep: 4700 | Episode: 47 | Mean Reward: -81.65
-Total Time: 00:00:55 | Episode Duration: 00:00:54 | Timestep: 4800 | Episode: 48 | Mean Reward: -73.55
-Total Time: 00:00:56 | Episode Duration: 00:00:55 | Timestep: 4900 | Episode: 49 | Mean Reward: -80.25
-Total Time: 00:00:57 | Episode Duration: 00:00:56 | Timestep: 5000 | Episode: 50 | Mean Reward: -85.15
-Total Time: 00:00:58 | Episode Duration: 00:00:57 | Timestep: 5100 | Episode: 51 | Mean Reward: -78.25
-Total Time: 00:00:59 | Episode Duration: 00:00:58 | Timestep: 5200 | Episode: 52 | Mean Reward: -73.30
-Total Time: 00:01:01 | Episode Duration: 00:00:59 | Timestep: 5300 | Episode: 53 | Mean Reward: -76.25
-Total Time: 00:01:02 | Episode Duration: 00:01:00 | Timestep: 5400 | Episode: 54 | Mean Reward: -72.80
-Total Time: 00:01:03 | Episode Duration: 00:01:02 | Timestep: 5500 | Episode: 55 | Mean Reward: -75.95
-Total Time: 00:01:04 | Episode Duration: 00:01:03 | Timestep: 5600 | Episode: 56 | Mean Reward: -76.55
-Total Time: 00:01:05 | Episode Duration: 00:01:04 | Timestep: 5700 | Episode: 57 | Mean Reward: -77.25
-Total Time: 00:01:06 | Episode Duration: 00:01:05 | Timestep: 5800 | Episode: 58 | Mean Reward: -79.65
-Total Time: 00:01:07 | Episode Duration: 00:01:06 | Timestep: 5900 | Episode: 59 | Mean Reward: -84.15
-Total Time: 00:01:08 | Episode Duration: 00:01:07 | Timestep: 6000 | Episode: 60 | Mean Reward: -76.55
-Total Time: 00:01:09 | Episode Duration: 00:01:08 | Timestep: 6100 | Episode: 61 | Mean Reward: -80.00
------------------------------------------
-| rollout/                |             |
-|    ep_len_mean          | 100         |
-|    ep_rew_mean          | -7.91e+03   |
-| time/                   |             |
-|    fps                  | 87          |
-|    iterations           | 3           |
-|    time_elapsed         | 70          |
-|    total_timesteps      | 6144        |
-| train/                  |             |
-|    approx_kl            | 0.009047963 |
-|    clip_fraction        | 0.00254     |
-|    clip_range           | 0.2         |
-|    entropy_loss         | -0.687      |
-|    explained_variance   | -0.000261   |
-|    learning_rate        | 0.0003      |
-|    loss                 | 7.38e+05    |
-|    n_updates            | 20          |
-|    policy_gradient_loss | -0.00497    |
-|    value_loss           | 1.35e+06    |
------------------------------------------
-Added application/zip as content-type of artifact C:\Users\andri\dev\github\smartcontractdrlfuz\env1_dev2\ppo_defender.zip.
+Added application/zip as content-type of artifact /Users/andrijasa/Workspace/project/madrl/smartcontractdrlfuz/env1_dev2/ppo_defender.zip.
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -217,7 +134,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 1: Total Reward: [-7755.]
+Episode 1: Total Reward: [-7720.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -318,7 +235,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 2: Total Reward: [-7060.]
+Episode 2: Total Reward: [-7500.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -419,7 +336,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 3: Total Reward: [-6940.]
+Episode 3: Total Reward: [-7565.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -520,7 +437,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 4: Total Reward: [-9205.]
+Episode 4: Total Reward: [-7955.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -621,7 +538,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 5: Total Reward: [-7310.]
+Episode 5: Total Reward: [-7435.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -722,7 +639,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 6: Total Reward: [-6780.]
+Episode 6: Total Reward: [-7585.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -823,7 +740,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 7: Total Reward: [-7015.]
+Episode 7: Total Reward: [-7945.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -924,7 +841,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 8: Total Reward: [-7915.]
+Episode 8: Total Reward: [-7185.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -1025,7 +942,7 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 9: Total Reward: [-7915.]
+Episode 9: Total Reward: [-8405.]
 Attacker sending malicious transaction 0
 Attacker sending malicious transaction 1
 Attacker sending malicious transaction 2
@@ -1126,4 +1043,5 @@ Attacker sending malicious transaction 96
 Attacker sending malicious transaction 97
 Attacker sending malicious transaction 98
 Attacker sending malicious transaction 99
-Episode 10: Total Reward: [-7600.]
+Episode 10: Total Reward: [-6965.]
+INFO - reentrancy_rl - Completed after 0:00:27

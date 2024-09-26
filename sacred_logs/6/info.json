@@ -1,8 +1,12 @@
 {
   "metrics": [
     {
-      "id": "66f46ae3e852ae3e40147f9c",
+      "id": "66f520cbfeb48a4686c7a4a7",
       "name": "Timestamp_reward"
+    },
+    {
+      "id": "66f520d5feb48a4686c7a4b7",
+      "name": "episode_reward"
     }
   ]
 }

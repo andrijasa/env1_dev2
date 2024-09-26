@@ -1,23 +1,21 @@
 {
-  "artifacts": [
-    "ppo_defender.zip"
-  ],
+  "artifacts": [],
   "command": "main",
   "experiment": {
-    "base_dir": "c:\\Users\\andri\\dev\\github\\smartcontractdrlfuz\\env1_dev2",
+    "base_dir": "/Users/andrijasa/Workspace/project/madrl/smartcontractdrlfuz/env1_dev2",
     "dependencies": [
       "gymnasium==0.29.1",
-      "numpy==1.24.3",
+      "numpy==1.24.4",
       "sacred==0.8.6",
       "stable-baselines3==2.3.2",
-      "torch==2.4.1+cu124",
-      "web3==5.31.0"
+      "torch==2.2.2",
+      "web3==5.31.3"
     ],
     "mainfile": "trainv6.py",
     "name": "reentrancy_rl",
     "repositories": [
       {
-        "commit": "608ef8ede251522068e1f4c1fc7bd6b68bb950ea",
+        "commit": "7f4489dc8fe077c1b88691fa51d969fd297044c9",
         "dirty": true,
         "url": "https://github.com/andrijasa/env1_dev2.git"
       }
@@ -25,28 +23,28 @@
     "sources": [
       [
         "trainv6.py",
-        "_sources\\trainv6_f6f239bcdb9e3747f3f3d414edeee7a9.py"
+        "_sources/trainv6_5761a765d5958049f8cb81855140920c.py"
       ]
     ]
   },
-  "heartbeat": "2024-09-25T19:40:50.345568",
+  "fail_trace": [
+    "Traceback (most recent call last):\n",
+    "  File \"/Users/andrijasa/.conda/envs/smartcontractdrlfuz/lib/python3.8/site-packages/sacred/config/captured_function.py\", line 42, in captured_function\n    result = wrapped(*args, **kwargs)\n",
+    "  File \"/Users/andrijasa/Workspace/project/madrl/smartcontractdrlfuz/env1_dev2/trainv6.py\", line 397, in main\n    new_logger = configure(log_dir, [\"stdout\", \"csv\", \"tensorboard\"])\n",
+    "  File \"/Users/andrijasa/.conda/envs/smartcontractdrlfuz/lib/python3.8/site-packages/stable_baselines3/common/logger.py\", line 659, in configure\n    output_formats = [make_output_format(f, folder, log_suffix) for f in format_strings]\n",
+    "  File \"/Users/andrijasa/.conda/envs/smartcontractdrlfuz/lib/python3.8/site-packages/stable_baselines3/common/logger.py\", line 659, in <listcomp>\n    output_formats = [make_output_format(f, folder, log_suffix) for f in format_strings]\n",
+    "  File \"/Users/andrijasa/.conda/envs/smartcontractdrlfuz/lib/python3.8/site-packages/stable_baselines3/common/logger.py\", line 465, in make_output_format\n    return TensorBoardOutputFormat(log_dir)\n",
+    "  File \"/Users/andrijasa/.conda/envs/smartcontractdrlfuz/lib/python3.8/site-packages/stable_baselines3/common/logger.py\", line 398, in __init__\n    assert SummaryWriter is not None, \"tensorboard is not installed, you can use `pip install tensorboard` to do so\"\n",
+    "AssertionError: tensorboard is not installed, you can use `pip install tensorboard` to do so\n"
+  ],
+  "heartbeat": "2024-09-26T08:31:29.731303",
   "host": {
     "ENV": {},
-    "cpu": "11th Gen Intel(R) Core(TM) i7-11700 @ 2.50GHz",
-    "gpus": {
-      "driver_version": "537.42",
-      "gpus": [
-        {
-          "model": "NVIDIA GeForce RTX 3070",
-          "persistence_mode": false,
-          "total_memory": 8192
-        }
-      ]
-    },
-    "hostname": "DESKTOP-UPVUE31",
+    "cpu": "Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz",
+    "hostname": "Kajurs-MacBook-Pro.local",
     "os": [
-      "Windows",
-      "Windows-10-10.0.22631-SP0"
+      "Darwin",
+      "macOS-10.16-x86_64-i386-64bit"
     ],
     "python_version": "3.8.19"
   },
@@ -83,7 +81,7 @@
   },
   "resources": [],
   "result": null,
-  "start_time": "2024-09-25T19:39:31.682981",
-  "status": "COMPLETED",
-  "stop_time": "2024-09-25T19:40:50.344612"
+  "start_time": "2024-09-26T08:31:28.499298",
+  "status": "FAILED",
+  "stop_time": "2024-09-26T08:31:29.733466"
 }

@@ -25,11 +25,29 @@ ex.observers.append(FileStorageObserver('./sacred_logs'))
 ex.observers.append(MongoObserver(url='mongodb://localhost:27017', db_name='env1_dev2'))
 
 
-def check_cuda():
-    print("CUDA Available:", torch.cuda.is_available())
-    print("Current CUDA Device:", torch.cuda.current_device())
-    print("Device Name:", torch.cuda.get_device_name(torch.cuda.current_device()))
+def check_device(use_gpu=True):
+    """
+    Check and select the device for computation (CPU or GPU).
 
+    Args:
+        use_gpu (bool): If True, attempt to use GPU if available. If False, use CPU.
+
+    Returns:
+        torch.device: The selected device.
+    """
+    if use_gpu and torch.cuda.is_available():
+        device = torch.device("cuda")
+        print("CUDA Available:", True)
+        print("Current CUDA Device:", torch.cuda.current_device())
+        print("Device Name:", torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        device = torch.device("cpu")
+        if use_gpu and not torch.cuda.is_available():
+            print("CUDA is not available. Falling back to CPU.")
+        else:
+            print("Using CPU.")
+    
+    return device
 
 def setup_web3(ganache_url):
     web3 = Web3(Web3.HTTPProvider(ganache_url))
@@ -339,14 +357,14 @@ def hyperparameters():
 @ex.automain
 def main(_run, ganache_url, contracts_path, log_dir, max_steps, max_balance, max_funds_drained, max_gas, max_time, total_timesteps):
     # Log hyperparameters to Sacred
-    _run.log_scalar("max_steps", max_steps)
-    _run.log_scalar("max_balance", max_balance)
-    _run.log_scalar("max_funds_drained", max_funds_drained)
-    _run.log_scalar("max_gas", max_gas)
-    _run.log_scalar("max_time", max_time)
-    _run.log_scalar("total_timesteps", total_timesteps)
+    # _run.log_scalar("max_steps", max_steps)
+    # _run.log_scalar("max_balance", max_balance)
+    # _run.log_scalar("max_funds_drained", max_funds_drained)
+    # _run.log_scalar("max_gas", max_gas)
+    # _run.log_scalar("max_time", max_time)
+    # _run.log_scalar("total_timesteps", total_timesteps)
 
-    check_cuda()
+    device = check_device();
     web3 = setup_web3(ganache_url)
 
     os.makedirs(log_dir, exist_ok=True)
@@ -375,7 +393,7 @@ def main(_run, ganache_url, contracts_path, log_dir, max_steps, max_balance, max
         'max_time': max_time
     }, vulnerable_contract, attacker_contract, attacker_account, detector, web3, render_mode='human'), n_envs=1)
 
-    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir, device='cuda')
+    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir, device=device)
     new_logger = configure(log_dir, ["stdout", "csv", "tensorboard"])
     model.set_logger(new_logger)
 
@@ -385,6 +403,7 @@ def main(_run, ganache_url, contracts_path, log_dir, max_steps, max_balance, max
     model.save("ppo_defender")
 
     _run.add_artifact("ppo_defender.zip")
+    
 
     model = PPO.load("ppo_defender")
 
@@ -404,7 +423,10 @@ def main(_run, ganache_url, contracts_path, log_dir, max_steps, max_balance, max
             total_reward += reward
 
         print(f"Episode {episode + 1}: Total Reward: {total_reward}")
+        
+        # Log episode results to Sacred
+        _run.log_scalar("episode_reward", episode, total_reward)
+        
         obs = env.reset()
 
-        # Log episode results to Sacred
-        _run.log_scalar(f"episode_{episode+1}_reward", total_reward)
+        
