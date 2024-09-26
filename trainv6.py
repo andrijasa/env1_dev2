@@ -14,27 +14,17 @@ from web3.middleware import geth_poa_middleware
 import json
 from sacred import Experiment
 from sacred.observers import FileStorageObserver, MongoObserver
-
+import optuna
 
 # Initialize Sacred Experiment
 ex = Experiment("reentrancy_rl")
 
 # Add observers
 ex.observers.append(FileStorageObserver('./sacred_logs'))
-# Assuming MongoDB is running locally on the default port and database 'sacred' exists
 ex.observers.append(MongoObserver(url='mongodb://localhost:27017', db_name='env1_dev2'))
 
-
+# Device selection
 def check_device(use_gpu=True):
-    """
-    Check and select the device for computation (CPU or GPU).
-
-    Args:
-        use_gpu (bool): If True, attempt to use GPU if available. If False, use CPU.
-
-    Returns:
-        torch.device: The selected device.
-    """
     if use_gpu and torch.cuda.is_available():
         device = torch.device("cuda")
         print("CUDA Available:", True)
@@ -46,15 +36,15 @@ def check_device(use_gpu=True):
             print("CUDA is not available. Falling back to CPU.")
         else:
             print("Using CPU.")
-    
     return device
 
+# Web3 setup
 def setup_web3(ganache_url):
     web3 = Web3(Web3.HTTPProvider(ganache_url))
     web3.middleware_onion.inject(geth_poa_middleware, layer=0)
     return web3
 
-
+# Load contracts
 def load_contracts(path, deployed_addresses):
     contracts = {}
     for filename in os.listdir(path):
@@ -69,13 +59,13 @@ def load_contracts(path, deployed_addresses):
                     }
     return contracts
 
-
+# Risk scoring (not changed)
 def risk_score(transaction, malicious_addresses):
     if transaction['to'] in malicious_addresses:
         return True
     return False
 
-
+# Deposit funds if needed
 def check_and_deposit_funds(contract, required_balance_eth, web3):
     balance = web3.eth.get_balance(contract.address)
     balance_in_ether = web3.fromWei(balance, 'ether')
@@ -89,7 +79,7 @@ def check_and_deposit_funds(contract, required_balance_eth, web3):
         web3.eth.wait_for_transaction_receipt(tx_hash)
         print("Deposit complete, vulnerable contract balance replenished.")
 
-
+# Attack simulation (not changed)
 def simulate_targeted_attack(amount_ether, target_drain_ether, vulnerable_contract, attacker_contract, web3):
     print(f"Simulating attack with {amount_ether} ETH, targeting to drain {target_drain_ether} ETH")
     vulnerable_balance_before = web3.eth.get_balance(vulnerable_contract.address)
@@ -123,7 +113,7 @@ def simulate_targeted_attack(amount_ether, target_drain_ether, vulnerable_contra
         print(f"Transaction blocked by middleware: {e}")
         return False, 0, 0
 
-
+# Reentrancy detection (not changed)
 class ReentrancyDetector:
     def __init__(self, vulnerable_contract, web3):
         self.vulnerable_contract = vulnerable_contract
@@ -183,7 +173,7 @@ class ReentrancyDetector:
         selector_hex = '0x' + selector.hex()
         return selector_hex
 
-
+# Convert Web3 results (not changed)
 def convert_attribute_dict(obj):
     if isinstance(obj, dict):
         return {k: convert_attribute_dict(v) for k, v in obj.items()}
@@ -192,7 +182,7 @@ def convert_attribute_dict(obj):
     else:
         return obj
 
-
+# Custom environment (not changed)
 class ReentrancyEnv(gym.Env):
     metadata = {'render_modes': ['human', 'rgb_array']}
 
@@ -240,31 +230,62 @@ class ReentrancyEnv(gym.Env):
         current_time = time.time()
 
         if action == 1:
-            reentrancy_detected, funds_drained, call_count, gas_used, call_depth = self._simulate_attacker()
-            reward = self._calculate_reward(reentrancy_detected, funds_drained, call_count, True)
+            reentrancy_detected, funds_drained, call_count, gas_used, call_depth, allowed = self._simulate_attacker()
+            reward = self._calculate_reward(reentrancy_detected, funds_drained, call_count, allowed)
         else:
-            reentrancy_detected, funds_drained, call_count, gas_used, call_depth = self._simulate_attacker()
-            reward = self._calculate_reward(reentrancy_detected, funds_drained, call_count, False)
+            reentrancy_detected, funds_drained, call_count, gas_used, call_depth, allowed = self._simulate_attacker()
+            reward = self._calculate_reward(reentrancy_detected, funds_drained, call_count, allowed)
 
         self.last_transaction_time = current_time
         return reward, terminated, truncated, funds_drained, call_count, call_depth, gas_used
 
     def _calculate_reward(self, reentrancy_detected, funds_drained, call_count, allowed):
-        reward = -100 if reentrancy_detected else 5
-        reward -= 50 if funds_drained > 0 else 0
-        reward -= 10 * call_count if reentrancy_detected else 0
-        reward += 50 if not allowed and reentrancy_detected else -5
+        reward = -50 if reentrancy_detected else 10  # Penalize heavily if reentrancy is detected
+        
+        reward -= 25 if funds_drained > 0 else 0  # Penalize for funds drained, with a moderate penalty
+        reward -= 5 * call_count if reentrancy_detected else 0  # Penalize for multiple calls in case of an attack
+        
+        if not allowed and reentrancy_detected:
+            reward += 75  # Significant reward for correctly blocking an attack
+        
+        reward += 20 if not reentrancy_detected and allowed else -10  # Reward for allowing safe transactions
+        
+        # Apply a maximum and minimum reward cap to avoid excessive penalties or rewards
+        reward = max(min(reward, 100), -100)
+        
         return reward
 
+
     def _simulate_attacker(self):
+        # reentrancy_detected = np.random.choice([True, False], p=[0.1, 0.9])
+        # funds_drained = abs(np.random.normal(0.0001, 0.00005))
+        # call_count = np.random.choice(range(1, 6), p=[0.5, 0.3, 0.1, 0.05, 0.05])
+        # gas_values = range(21000, 500001, 10000)
+        # gas_used = np.random.choice(gas_values, p=np.linspace(0.6, 0.01, len(gas_values)) / np.sum(np.linspace(0.6, 0.01, len(gas_values))))
+        # call_depth_values = range(1, 13)
+        # call_depth = np.random.choice(call_depth_values, p=np.linspace(0.4, 0.05, len(call_depth_values)) / np.sum(np.linspace(0.4, 0.05, len(call_depth_values))))
+        
+        # Use a normal distribution for the amount of funds drained, constrained to positive values
+        funds_drained = np.abs(np.random.normal(loc=0.0001, scale=0.00005))  # Mean = 0.0001 Ether, SD = 0.00005 Ether
+
+        # Simulate the number of calls to the vulnerable function using a Poisson distribution (appropriate for count data)
+        call_count = np.random.poisson(lam=2)  # Mean number of calls = 2, could be adjusted based on the context
+
+        # Use a uniform distribution for gas used within a realistic range
+        gas_used = np.random.uniform(low=21000, high=500000)  # Minimum gas for a transaction is 21000, max is 500000
+
+        # Simulate call depth, potentially indicating recursion, using a geometric distribution
+        call_depth = np.random.geometric(p=0.3)  # Higher probability of shallow call depth, tailing off quickly
+
+        # Apply a cutoff to avoid unrealistic extremes
+        call_depth = min(call_depth, 10)  # Cap the call depth to a maximum of 10
+        call_count = min(call_count, 5)  # Cap the call count to a maximum of 5
+        funds_drained = min(funds_drained, 0.001)  # Cap funds drained to 0.001 Ether (for scenario realism)
+
+        # Reentrancy detection: 30% chance of a reentrancy attack being detected (based on scenario)
         reentrancy_detected = np.random.choice([True, False], p=[0.3, 0.7])
-        funds_drained = abs(np.random.normal(0.0001, 0.00005))
-        call_count = np.random.choice(range(1, 6), p=[0.5, 0.3, 0.1, 0.05, 0.05])
-        gas_values = range(21000, 500001, 10000)
-        gas_used = np.random.choice(gas_values, p=np.linspace(0.6, 0.01, len(gas_values)) / np.sum(np.linspace(0.6, 0.01, len(gas_values))))
-        call_depth_values = range(1, 13)
-        call_depth = np.random.choice(call_depth_values, p=np.linspace(0.4, 0.05, len(call_depth_values)) / np.sum(np.linspace(0.4, 0.05, len(call_depth_values))))
-        return reentrancy_detected, funds_drained, call_count, gas_used, call_depth
+        allowed = np.random.choice([True, False], p=[0.3, 0.7])
+        return reentrancy_detected, funds_drained, call_count, gas_used, call_depth, allowed
 
     def _update_state(self, funds_drained, call_count, gas_used, call_depth):
         vulnerable_contract_balance = self.web3.eth.get_balance(self.vulnerable_contract.address)
@@ -294,7 +315,7 @@ class ReentrancyEnv(gym.Env):
     def close(self):
         pass
 
-
+# Custom callback for logging and monitoring
 class PrintTimestepCallback(BaseCallback):
     def __init__(self, verbose=0, _run=None):
         super(PrintTimestepCallback, self).__init__(verbose)
@@ -302,6 +323,9 @@ class PrintTimestepCallback(BaseCallback):
         self.episode_start_time = None
         self.episode_num = 0
         self.episode_rewards = []
+        self.episode_lengths = []
+        self.episode_rewards = []
+        self.loss_values = []  # Initialize loss_values
         self._run = _run
 
     def _on_training_start(self) -> None:
@@ -314,17 +338,39 @@ class PrintTimestepCallback(BaseCallback):
         reward = self.locals['rewards'][0]
         self.episode_rewards.append(reward)
 
+        loss = self.locals.get('loss')  # Hypothetical: depends on how loss is computed or accessed
+        episode_length = self.locals.get('episode_length')
+        self.episode_rewards.append(reward)
+        if loss is not None:
+            self.loss_values.append(loss)
+        if episode_length is not None:
+            self.episode_lengths.append(episode_length)
+
+
         if self.locals['dones'][0]:
             self.episode_num += 1
-            mean_reward = sum(self.episode_rewards) / len(self.episode_rewards)
+            mean_reward = np.mean(self.episode_rewards)
+            mean_loss = np.mean(self.loss_values) if self.loss_values else None
+            mean_episode_length = np.mean(self.episode_lengths) if self.episode_lengths else None
+
             episode_duration = time.time() - self.episode_start_time
             formatted_episode_duration = time.strftime("%H:%M:%S", time.gmtime(episode_duration))
             elapsed_time = time.time() - self.start_time
             formatted_total_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
             print(f"Total Time: {formatted_total_time} | Episode Duration: {formatted_episode_duration} | Timestep: {self.num_timesteps} | Episode: {self.episode_num} | Mean Reward: {mean_reward:.2f}")
+            #self.episode_rewards = []
+            #self._run.log_scalar("Episode_Reward", mean_reward, self.episode_num)
+
+            self._run.log_scalar("Timesteps_Reward", mean_reward, self.num_timesteps)
+            if mean_loss is not None:
+                self._run.log_scalar("Mean_Loss", mean_loss, self.num_timesteps)
+            if mean_episode_length is not None:
+                self._run.log_scalar("Mean_Episode_Length", mean_episode_length, self.num_timesteps)
+
+            # Reset for next episode
             self.episode_rewards = []
-            self._run.log_scalar("Timestamp_reward", mean_reward, self.episode_num)
-            
+            self.loss_values = []
+            self.episode_lengths = []
         return True
     
 # Define the Attacker class
@@ -341,38 +387,33 @@ class AttackerAgent:
         self.tx_count += 1
         return {'to': '0xMaliciousAddress1', 'gas': 60000}
 
+# Configuration for hyperparameters with auto-tuning
 @ex.config
 def hyperparameters():
-    ganache_url = "http://127.0.0.1:7545"
-    contracts_path = "./build/contracts"
-    log_dir = "./ppo_tensorboard/"
-    max_steps = 100
-    max_balance = 100.0
-    max_funds_drained = 1.0
-    max_gas = 500000
-    max_time = 60
-    total_timesteps = 2000
+    learning_rate = 5e-4  # Default learning rate
+    gamma = 0.995  # Default discount factor
+    n_steps = 4096  # Default number of steps per update
+    ent_coef = 0.001  # Default entropy coefficient
+    clip_range = 0.2  # Default clip range for PPO
+    total_timesteps = 300000  # Fixed value, not tuned
+   
+    # In your hyperparameter configuration or directly in the training setup:
+    #n_steps = 512  # Adjust n_steps to ensure compatibility
+    n_envs =1     # Assuming you are using a single environment
+    batch_size = 4096  # Ensure this is a factor of n_steps * n_envs
 
+# Function to train the PPO model with given hyperparameters
+def train_ppo(_run, learning_rate, gamma, n_steps, ent_coef, clip_range, total_timesteps, n_envs, batch_size):
+    device = check_device()
+    os.makedirs("./ppo_tensorboard/", exist_ok=True)
+    os.makedirs("./model_saved/", exist_ok=True)
 
-@ex.automain
-def main(_run, ganache_url, contracts_path, log_dir, max_steps, max_balance, max_funds_drained, max_gas, max_time, total_timesteps):
-    # Log hyperparameters to Sacred
-    # _run.log_scalar("max_steps", max_steps)
-    # _run.log_scalar("max_balance", max_balance)
-    # _run.log_scalar("max_funds_drained", max_funds_drained)
-    # _run.log_scalar("max_gas", max_gas)
-    # _run.log_scalar("max_time", max_time)
-    # _run.log_scalar("total_timesteps", total_timesteps)
-
-    device = check_device();
-    web3 = setup_web3(ganache_url)
-
-    os.makedirs(log_dir, exist_ok=True)
-
+    # Assume setup_web3, load_contracts, ReentrancyEnv, and PrintTimestepCallback are defined elsewhere
+    web3 = setup_web3("http://127.0.0.1:7545")
     with open('deployed_contracts.json') as f:
         deployed_addresses = json.load(f)
+    contracts = load_contracts("./build/contracts", deployed_addresses)
 
-    contracts = load_contracts(contracts_path, deployed_addresses)
     vulnerable_contract = web3.eth.contract(
         address=Web3.toChecksumAddress(contracts['VulnerableContract']['address']),
         abi=contracts['VulnerableContract']['abi']
@@ -385,50 +426,99 @@ def main(_run, ganache_url, contracts_path, log_dir, max_steps, max_balance, max
 
     detector = ReentrancyDetector(vulnerable_contract, web3)
 
+    
+
+
     env = make_vec_env(lambda: ReentrancyEnv({
-        'max_steps': max_steps,
-        'max_balance': max_balance,
-        'max_funds_drained': max_funds_drained,
-        'max_gas': max_gas,
-        'max_time': max_time
-    }, vulnerable_contract, attacker_contract, attacker_account, detector, web3, render_mode='human'), n_envs=1)
+        'max_steps': 100,
+        'max_balance': 100.0,
+        'max_funds_drained': 1.0,
+        'max_gas': 500000,
+        'max_time': 60
+    }, vulnerable_contract, attacker_contract, attacker_account, detector, web3, render_mode='human'), n_envs=n_envs)
 
-    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir, device=device)
-    new_logger = configure(log_dir, ["stdout", "csv", "tensorboard"])
-    model.set_logger(new_logger)
-
+    
+    # Initialize the PPO model with the adjusted parameters
+    model = PPO("MlpPolicy", env, learning_rate=learning_rate, gamma=gamma, 
+                n_steps=n_steps, ent_coef=ent_coef, clip_range=clip_range,
+                batch_size=batch_size, verbose=1, tensorboard_log="./ppo_tensorboard/", device=device)    
+    
     callback = PrintTimestepCallback(_run=_run)
-
     model.learn(total_timesteps=total_timesteps, callback=callback)
-    model.save("ppo_defender")
-
-    _run.add_artifact("ppo_defender.zip")
     
-
-    model = PPO.load("ppo_defender")
-
-    obs = env.reset()
+    mean_reward = np.mean(callback.episode_rewards)
     
+    # Log the mean reward of the training
+    _run.log_scalar("mean_reward", mean_reward)
 
-    for episode in range(10):
-        done = False
-        total_reward = 0
+    # Save the trained model
+    model_path = f"model_saved/trained_model_{mean_reward:.2f}.zip"
+    model.save(model_path)
+    _run.add_artifact(model_path)
 
-        attacker = AttackerAgent(max_tx=100)
+    return mean_reward, model_path
 
-        while not done:
-            action, _states = model.predict(obs)
-            tx = attacker.attack()
-            if tx is None:
-                break
-            obs, reward, done, info = env.step([action])
-            total_reward += reward
+# Main function for Sacred
+@ex.automain
+def main(_run, learning_rate, gamma, n_steps, ent_coef, clip_range, total_timesteps, n_envs, batch_size):
+    mean_reward, model_path = train_ppo(_run, learning_rate, gamma, n_steps, ent_coef, clip_range, total_timesteps, n_envs, batch_size)
+    print(f"Training completed with mean reward: {mean_reward}, model saved to {model_path}")
 
-        print(f"Episode {episode + 1}: Total Reward: {total_reward}")
-        
-        # Log episode results to Sacred
-        _run.log_scalar("episode_reward", total_reward.item(), episode + 1)
-        
-        obs = env.reset()
+# Function to run with Optuna (if needed)
+def run_with_optuna():
+    best_reward = -np.inf
+    best_model_path = None
 
-        
+    def objective(trial):
+        nonlocal best_reward, best_model_path
+
+        # Extract the hyperparameters suggested by Optuna
+        learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True)
+        gamma = trial.suggest_float('gamma', 0.9, 0.999)
+        n_steps = trial.suggest_int('n_steps', 128, 512)
+        ent_coef = trial.suggest_float('ent_coef', 0.0001, 0.1, log=True)
+        clip_range = trial.suggest_float('clip_range', 0.1, 0.4)
+        # In your hyperparameter configuration or directly in the training setup:
+        n_steps = 512  # Adjust n_steps to ensure compatibility
+        n_envs = 1     # Assuming you are using a single environment
+        batch_size = 128  # Ensure this is a factor of n_steps * n_envs
+
+        # Run the Sacred experiment with the suggested hyperparameters
+        run = ex.run(config_updates={
+            "learning_rate": learning_rate,
+            "gamma": gamma,
+            "n_steps": n_steps,
+            "ent_coef": ent_coef,
+            "clip_range": clip_range,
+            # In your hyperparameter configuration or directly in the training setup:
+            "n_steps" : n_steps,  # Adjust n_steps to ensure compatibility
+            "n_envs" : n_envs,     # Assuming you are using a single environment
+            "batch_size" : batch_size  # Ensure this is a factor of n_steps * n_envs
+        })
+
+        # Get the result from the run
+        result = run.result
+        if result is None:
+            return -np.inf
+
+        mean_reward, model_path = result
+
+        # Save the model if it is the best so far
+        if mean_reward > best_reward:
+            best_reward = mean_reward
+            best_model_path = model_path
+            print(f"New best model found: {model_path} with reward {mean_reward}")
+
+        return mean_reward
+
+    # Create Optuna study to optimize the PPO model
+    study = optuna.create_study(direction="maximize")
+    study.optimize(objective, n_trials=50)
+
+    # Output best hyperparameters
+    print("Best hyperparameters: ", study.best_params)
+    print(f"Best model saved at: {best_model_path}")
+
+# Example of how to use Optuna tuning
+# if __name__ == "__main__":
+#     run_with_optuna()
