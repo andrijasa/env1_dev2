@@ -2,6 +2,7 @@ const fs = require('fs');
 
 const VulnerableContract = artifacts.require("VulnerableContract");
 const Attacker = artifacts.require("Attacker");
+const SafeBank = artifacts.require("SafeBank");
 //const TestFallback = artifacts.require("TestFallback");
 
 module.exports = async function (deployer) {
@@ -13,15 +14,17 @@ module.exports = async function (deployer) {
   const vulnerableContractInstance = await VulnerableContract.deployed();
   deployedContracts[VulnerableContract.contractName] = vulnerableContractInstance.address;
 
+  // Deploy VulnerableContract and get the deployed address
+  await deployer.deploy(SafeBank);
+  const SafeBankInstance = await SafeBank.deployed();
+  deployedContracts[SafeBank.contractName] = SafeBankInstance.address;
+
   // Deploy Attacker and get the deployed address
-  await deployer.deploy(Attacker, vulnerableContractInstance.address);
+  await deployer.deploy(Attacker, SafeBankInstance.address);
   const attackerContractInstance = await Attacker.deployed();
   deployedContracts[Attacker.contractName] = attackerContractInstance.address;
 
-  // // Deploy VulnerableContract and get the deployed address
-  // await deployer.deploy(TestFallback);
-  // const TestFallbackInstance = await TestFallback.deployed();
-  // deployedContracts[TestFallback.contractName] = TestFallbackInstance.address;
+
 
 
   // Write the deployed contract addresses to a JSON file

@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./VulnerableContract.sol";
+//import "./VulnerableContract.sol";
+import "./SafeBank.sol";
 
 contract Attacker {
     mapping(address => uint256) public balances;
-    VulnerableContract public vulnerable;
+    //VulnerableContract public vulnerable;
+    SafeBank public vulnerable;
     address public owner;
     uint256 public targetAmount;  // Amount to drain
     uint256 public drainedAmount;  // Amount already drained
@@ -13,7 +15,8 @@ contract Attacker {
     uint256 public totalWithdraw; //targetAmount - drainedAmount;
 
     constructor(address payable _vulnerableAddress) {
-        vulnerable = VulnerableContract(_vulnerableAddress);
+        //vulnerable = VulnerableContract(_vulnerableAddress);
+        vulnerable = SafeBank(_vulnerableAddress);
         owner = msg.sender;
     }
 

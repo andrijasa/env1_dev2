@@ -58,9 +58,10 @@ with open('deployed_contracts.json') as f:
     deployed_addresses = json.load(f)
 
 vulnerable_contract = load_contract('VulnerableContract', deployed_addresses['VulnerableContract'])
+safeBank_contract = load_contract('SafeBank', deployed_addresses['SafeBank'])
 attacker_contract = load_contract('Attacker', deployed_addresses['Attacker'])
 
-detector = ReentrancyDetector(vulnerable_contract, attacker_contract)
+detector = ReentrancyDetector(safeBank_contract, attacker_contract)
 
 # Check if the vulnerable contract has less than 5 Ether, and deposit 5 Ether if needed
 def check_and_deposit_funds(contract):
@@ -98,7 +99,7 @@ def simulate_attack(amount_gwei):
     print(f"\nSimulating attack with {amount_gwei} wei")
     
     # Check contract balance before attack
-    balance_before = web3.eth.get_balance(vulnerable_contract.address)
+    balance_before = web3.eth.get_balance(safeBank_contract.address)
     print(f"Vulnerable contract balance before attack: {web3.toWei(balance_before, 'wei')} wei")
     
     # Attacker initiates the attack
@@ -112,7 +113,7 @@ def simulate_attack(amount_gwei):
     print(f"Attack transaction mined in block {receipt.blockNumber}")
 
     # Check contract balance after attack
-    balance_after = web3.eth.get_balance(vulnerable_contract.address)
+    balance_after = web3.eth.get_balance(safeBank_contract.address)
     print(f"Vulnerable contract balance after attack: {web3.toWei(balance_after, 'wei')} wei")
 
 # Detect reentrancy after each transaction
@@ -120,7 +121,7 @@ def run_detection_cycle():
     detector.detect_reentrancy()
 
 # Check the balance of the vulnerable contract and deposit 5 ETH if needed
-check_and_deposit_funds(vulnerable_contract)
+check_and_deposit_funds(safeBank_contract)
 # check_and_deposit_funds(attacker_contract)
 
 # Example simulation:

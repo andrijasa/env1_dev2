@@ -1,4 +1,5 @@
 {
-  "VulnerableContract": "0xA890DA8438ba6E64ad9a56dd63f2dfb59e7BE859",
-  "Attacker": "0x186aae900cFAc52be5a0046755ae7aF8fdd63075"
+  "VulnerableContract": "0xa5dad40C2C1F565447C4465CBfd694eC142645E6",
+  "SafeBank": "0x818427196eA82D7383eF431367aEC9BbD5b964b6",
+  "Attacker": "0xc711a73fc7D4f662331C1bFF6C60330f200D7ac7"
 }
