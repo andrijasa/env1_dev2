@@ -28,7 +28,7 @@ class AlteredReentrancyEnv(ReentrancyEnv):
         return state, reward, terminated, truncated, info
     
 # Load the best model
-model_path = "./model_saved/trained_model_31.61.zip"
+model_path = "./model_saved/trained_model_33.97.zip"
 model = PPO.load(model_path)
 
 # Set up the original and altered evaluation environments
@@ -57,7 +57,7 @@ def evaluate_model_in_env(env, n_episodes=100):
         steps = 0
         episode_success = False
         while not done:
-            action, _states = model.predict(obs, deterministic=True)
+            action, _ = model.predict(obs)
             step_result = env.step(action)
             
             if len(step_result) == 5:

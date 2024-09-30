@@ -105,17 +105,31 @@ class AttackerAgent:
 # Configuration for hyperparameters with auto-tuning
 @ex.config
 def hyperparameters():
-    learning_rate = 1e-4  # Default learning rate
-    gamma = 0.97  # Default discount factor
+    learning_rate = 1e-5  # Default learning rate
+    gamma = 0.9930447770093623  # Default discount factor
     n_steps = 2048  # Default number of steps per update
-    ent_coef = 0.003  # Default entropy coefficient
-    clip_range = 0.36  # Default clip range for PPO
-    total_timesteps = 200000  # Fixed value, not tuned
+    ent_coef = 0.01  # Default entropy coefficient
+    clip_range = 0.1  # Default clip range for PPO
+    total_timesteps = 1000000  # Fixed value, not tuned
    
     # In your hyperparameter configuration or directly in the training setup:
     #n_steps = 512  # Adjust n_steps to ensure compatibility
     n_envs =1     # Assuming you are using a single environment
-    batch_size = 64  # Ensure this is a factor of n_steps * n_envs
+    batch_size = 256  # Ensure this is a factor of n_steps * n_envs
+
+# @ex.config
+# def hyperparameters():
+#     learning_rate = 0.0005555671852534937  # Default learning rate
+#     gamma = 0.9930447770093623  # Default discount factor
+#     n_steps = 2048  # Default number of steps per update
+#     ent_coef = 0.0022495618240497583  # Default entropy coefficient
+#     clip_range = 0.29918864741704365  # Default clip range for PPO
+#     total_timesteps = 200000  # Fixed value, not tuned
+   
+#     # In your hyperparameter configuration or directly in the training setup:
+#     #n_steps = 512  # Adjust n_steps to ensure compatibility
+#     n_envs =1     # Assuming you are using a single environment
+#     batch_size = 128  # Ensure this is a factor of n_steps * n_envs
 
 
 
@@ -237,5 +251,5 @@ def run_with_optuna():
 
 
 # Example of how to use Optuna tuning
-if __name__ == "__main__":
-    run_with_optuna()
+# if __name__ == "__main__":
+#     run_with_optuna()

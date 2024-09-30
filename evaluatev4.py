@@ -50,13 +50,16 @@ def evaluate_model(model, envs, env_names, episodes=10):
             
             while not done:
                 action, _ = model.predict(obs)
+    
+                # print(f"Action: {action}")
                 action_counts[action] += 1  # Count each action
                 obs, reward, done, info = env.step(action)
                 total_reward += reward
+                print(f"Reward: {reward}, Info: {info[0]}")
             
             print(f"Episode {episode + 1}: Total Reward = {total_reward}")
             print(f"Action Counts: {action_counts}")
-
+            pause = input("Press Enter to continue...")
     
 # Evaluate the model
 evaluate_model(model, envs_to_test, env_names)

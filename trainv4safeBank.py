@@ -28,8 +28,8 @@ def convert_attribute_dict(obj):
             return obj
 
 class ReentrancyDetector:
-    def __init__(self, vulnerable_contract):
-        self.vulnerable_contract = vulnerable_contract
+    def __init__(self, target_contract):
+        self.target_contract = target_contract
         self.previous_block = web3.eth.block_number
 
     def detect_reentrancy(self):
@@ -85,7 +85,7 @@ class ReentrancyDetector:
         if op in ['CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL']:
             if len(stack) >= 2:  # Ensure there are at least two items in the stack
                 to_address = '0x' + stack[-2][-40:].lower()  # Extract the last 40 characters and add '0x' prefix
-                contract_address = self.vulnerable_contract.address.lower()
+                contract_address = self.target_contract.address.lower()
 
                 if to_address == contract_address:
                     # Iterate through the stack to find the function selector
@@ -122,26 +122,26 @@ class ReentrancyDetector:
 with open('deployed_contracts.json') as f:
     deployed_addresses = json.load(f)
 
-vulnerable_contract = load_contract('VulnerableContract', deployed_addresses['VulnerableContract'])
+target_contract = load_contract('SafeBank', deployed_addresses['SafeBank'])
 attacker_contract = load_contract('Attacker', deployed_addresses['Attacker'])
 
 # Create the detector instance
-detector = ReentrancyDetector(vulnerable_contract)
+detector = ReentrancyDetector(target_contract)
 
 def check_and_deposit_funds(contract, required_balance_eth):
     balance = web3.eth.get_balance(contract.address)
     balance_in_ether = web3.fromWei(balance, 'ether')
 
-    print(f"Vulnerable contract current balance: {balance_in_ether} ETH")
+    print(f"Target contract current balance: {balance_in_ether} ETH")
 
     if balance_in_ether < required_balance_eth:
         deposit_amount = required_balance_eth - float(balance_in_ether)
-        print(f"Depositing {deposit_amount} Ether to the vulnerable contract.")
+        print(f"Depositing {deposit_amount} Ether to the target contract.")
         tx_hash = contract.functions.deposit().transact({
             'from': web3.eth.accounts[0], 'value': web3.toWei(deposit_amount, 'ether')
         })
         web3.eth.wait_for_transaction_receipt(tx_hash)
-        print("Deposit complete, vulnerable contract balance replenished.")
+        print("Deposit complete, target contract balance replenished.")
 
 def simulate_targeted_attack(amount_ether, target_drain_ether):
     print(f"Simulating attack with {amount_ether} ETH, targeting to drain {target_drain_ether} ETH")
@@ -167,7 +167,7 @@ def simulate_targeted_attack(amount_ether, target_drain_ether):
     print("Attack transaction mined.")
     
     # Print balances after the attack
-    vulnerable_balance = web3.eth.get_balance(vulnerable_contract.address)
+    vulnerable_balance = web3.eth.get_balance(target_contract.address)
     attacker_balance = web3.eth.get_balance(web3.eth.accounts[1])
     
     print(f"Vulnerable contract balance: {web3.fromWei(vulnerable_balance, 'ether')} ETH")
@@ -191,8 +191,8 @@ def print_attacker_eth_balance():
     balance_in_ether = web3.fromWei(balance, 'ether')
     print(f"Attacker's Ether balance: {balance_in_ether} ETH")
 
-def print_vulnerable_contract_balance():
-    balance = web3.eth.get_balance(vulnerable_contract.address)
+def print_target_contract_balance():
+    balance = web3.eth.get_balance(target_contract.address)
     balance_in_ether = web3.fromWei(balance, 'ether')
     print(f"Vulnerable contract Ether balance: {balance_in_ether} ETH")
 
@@ -200,9 +200,9 @@ def run_detection_cycle():
     detector.detect_reentrancy()
 
 
-def test_vulnerable_contract():
+def test_target_contract():
     print("Depositing 1 ETH to the vulnerable contract.")
-    tx_hash = vulnerable_contract.functions.deposit().transact({
+    tx_hash = target_contract.functions.deposit().transact({
         'from': web3.eth.accounts[0],
         'value': web3.toWei(1, 'ether')
     })
@@ -210,7 +210,7 @@ def test_vulnerable_contract():
     print("Deposit complete.")
 
     print("Withdrawing 0.5 ETH from the vulnerable contract.")
-    tx_hash = vulnerable_contract.functions.withdraw(web3.toWei(0.5, 'ether')).transact({
+    tx_hash = target_contract.functions.withdraw(web3.toWei(0.5, 'ether')).transact({
         'from': web3.eth.accounts[0],
         'gas': 300000
     })
@@ -231,7 +231,7 @@ def simulate_attack():
     print(f"Attack transaction mined: {receipt}")
     
     # Print balances after the attack
-    vulnerable_balance = web3.eth.get_balance(vulnerable_contract.address)
+    vulnerable_balance = web3.eth.get_balance(target_contract.address)
     attacker_balance = web3.eth.get_balance(web3.eth.accounts[1])
     
     print(f"Vulnerable contract balance: {web3.fromWei(vulnerable_balance, 'ether')} ETH")
@@ -239,13 +239,13 @@ def simulate_attack():
 
 
 
-#check_and_deposit_funds(attacker_contract, 1)
-check_and_deposit_funds(vulnerable_contract, 0.1)
+#check_and_deposit_funds(attacker_contract, 0.1)
+#check_and_deposit_funds(target_contract, 0.1)
 simulate_targeted_attack(0.01, 0.05)  # Simulate an attack with 0.1 Ether, targeting to drain 0.5 Ether
 run_detection_cycle()  # Run detection after the attack
 # for i in range(5):
-#     check_and_deposit_funds(vulnerable_contract, 0.1)
+#     check_and_deposit_funds(target_contract, 0.1)
 #     simulate_targeted_attack(0.01, 0.1)  # Simulate small attacks
 #     run_detection_cycle()  # Run detection after each attack
 
-#test_vulnerable_contract()
+#test_target_contract()

@@ -3,6 +3,7 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 import time
+from severityScore import SeverityScore
 
 
 
@@ -36,6 +37,13 @@ class ReentrancyEnv(gym.Env):
         self.render_mode = render_mode
 
         self.reward_history = []  # Initialize reward history for dynamic scaling
+
+        # Initial epsilon for random action sampling (epsilon-greedy)
+        self.epsilon = 1.0  # High epsilon means more exploration initially
+        self.epsilon_min = 0.1  # Minimum epsilon value to decay towards
+        self.epsilon_decay = 0.995  # Rate at which epsilon decays after each episode
+
+
 
     def reset(self, seed=None, options=None):
         """Reset the environment to its initial state with meaningful default values."""
@@ -103,9 +111,16 @@ class ReentrancyEnv(gym.Env):
         terminated = self.current_step >= self.max_steps
 
         return self.state, reward, terminated, truncated, {
-            'funds_drained': funds_drained,
             'reentrancy_detected': reentrancy_detected,
-            'severity_score': self.state[-1]
+            'balance': self.state[1],
+            'attacker_balance': self.state[2],
+            'funds_drained': funds_drained,
+            'gas_used': gas_used,
+            'call_count': call_count,
+            'call_depth': call_depth,
+            'severity_score': self.state[7],
+            'action': action
+            
         }
 
     def _simulate_attacker(self):
@@ -142,13 +157,11 @@ class ReentrancyEnv(gym.Env):
         return reentrancy_detected, funds_drained, call_count, gas_used, call_depth
 
     def _calculate_reward(self, reentrancy_detected, funds_drained, call_count, gas_used, call_depth, allowed):
-        """Calculate reward based on severity level of the reentrancy attack, with more granular feedback."""
-        
         # Calculate severity scores based on the attack profile
-        funds_severity = self._calculate_funds_severity(funds_drained)
-        call_count_severity = self._calculate_call_count_severity(call_count)
-        call_depth_severity = self._calculate_call_depth_severity(call_depth)
-        gas_used_severity = self._calculate_gas_severity(gas_used)
+        funds_severity = SeverityScore._calculate_funds_severity(funds_drained)
+        call_count_severity = SeverityScore._calculate_call_count_severity(call_count)
+        call_depth_severity = SeverityScore._calculate_call_depth_severity(call_depth)
+        gas_used_severity = SeverityScore._calculate_gas_severity(gas_used)
 
         # Total severity score for the attack
         severity_score = funds_severity + call_count_severity + call_depth_severity + gas_used_severity
@@ -157,7 +170,8 @@ class ReentrancyEnv(gym.Env):
         block_reward_scale = 50      # Reward if reentrancy detected and blocked
         allowed_penalty_scale = 20   # Penalty for allowing an attack
         safe_transaction_reward = 5  # Reward for allowing a safe transaction
-        minor_penalty_scale = 10      # Penalty for small mistakes
+        minor_penalty_scale = 10     # Penalty for small mistakes
+        blocking_safe_penalty = 10   # Penalty for blocking safe transactions
 
         # Initialize the reward
         reward = 0
@@ -170,18 +184,17 @@ class ReentrancyEnv(gym.Env):
             # Penalty for failing to block a detected attack
             reward -= allowed_penalty_scale * severity_score
         elif not reentrancy_detected and allowed:
-            # Small reward for allowing safe transactions
+            # Reward for allowing safe transactions
             reward += safe_transaction_reward
-        else:
-            # Reward for safe behavior (transaction without attacks)
-            reward += safe_transaction_reward
+        elif not reentrancy_detected and not allowed:
+            # Penalty for blocking a safe transaction
+            reward -= blocking_safe_penalty
 
-        # Add incremental rewards for minimizing funds drained
+        # Penalize proportionally to the funds drained
         if funds_drained > 0:
-            # Penalize proportionally to the funds drained, but with a smaller scale
             reward -= funds_drained * 10  # Lower penalty scale for drained funds
         
-        # Add rewards for minimizing gas usage (encouraging efficiency)
+        # Reward for minimizing gas usage (encouraging efficiency)
         reward += (1 - min(gas_used / 300000, 1.0)) * 5  # Smaller scale to avoid over-penalization
         
         # Encourage the agent to minimize call depth (simpler, safer interactions)
@@ -200,15 +213,25 @@ class ReentrancyEnv(gym.Env):
 
         return reward
 
+    def select_action(self, current_policy):
+        """Select an action using epsilon-greedy strategy."""
+        if np.random.rand() < self.epsilon:
+            # Explore: choose a random action
+            action = self.action_space.sample()
+        else:
+            # Exploit: choose the best action based on the current policy
+            action = np.argmax(current_policy)
+        return action
+    
     def _update_state(self, reentrancy_detected, funds_drained, call_count, gas_used, call_depth, action):
         """
         Update the environment's internal state based on the latest transaction and incorporate new variables.
         """
-        # Calculate severity score
-        funds_severity = self._calculate_funds_severity(funds_drained)
-        call_count_severity = self._calculate_call_count_severity(call_count)
-        call_depth_severity = self._calculate_call_depth_severity(call_depth)
-        gas_used_severity = self._calculate_gas_severity(gas_used)
+        # Calculate severity scores based on the attack profile
+        funds_severity = SeverityScore._calculate_funds_severity(funds_drained)
+        call_count_severity = SeverityScore._calculate_call_count_severity(call_count)
+        call_depth_severity = SeverityScore._calculate_call_depth_severity(call_depth)
+        gas_used_severity = SeverityScore._calculate_gas_severity(gas_used)
 
         # Total severity score
         severity_score = funds_severity + call_count_severity + call_depth_severity + gas_used_severity
@@ -250,42 +273,6 @@ class ReentrancyEnv(gym.Env):
     # Call Count	1 - 2 function calls	3 - 5 function calls	> 5 function calls
     # Call Depth	1 - 3 levels	4 - 6 levels	> 6 levels
     # Gas Used	< 100,000 gas	100,000 - 300,000 gas	> 300,000 gas
-
-    def _calculate_funds_severity(self, funds_drained):
-        """Calculate the severity based on the amount of funds drained."""
-        if funds_drained < 0.001:
-            return 1
-        elif funds_drained < 0.01:
-            return 2
-        else:
-            return 3
-
-    def _calculate_call_count_severity(self, call_count):
-        """Calculate the severity based on the number of calls made."""
-        if call_count <= 2:
-            return 1
-        elif call_count <= 5:
-            return 2
-        else:
-            return 3
-
-    def _calculate_call_depth_severity(self, call_depth):
-        """Calculate the severity based on the call depth."""
-        if call_depth <= 3:
-            return 1
-        elif call_depth <= 6:
-            return 2
-        else:
-            return 3
-
-    def _calculate_gas_severity(self, gas_used):
-        """Calculate the severity based on gas used."""
-        if gas_used < 100000:
-            return 1
-        elif gas_used < 300000:
-            return 2
-        else:
-            return 3
 
     def render(self, mode='human'):
         if mode == 'human':

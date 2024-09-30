@@ -9,7 +9,7 @@ from trainv7 import ReentrancyEnv
 
 
 # Load the best model
-model_path = "./model_saved/trained_model_20.10.zip"  # Replace <mean_reward> with the actual value
+model_path = "./model_saved/trained_model_31.93.zip"  # Replace <mean_reward> with the actual value
 model = PPO.load(model_path)
 
 # Set up the evaluation environment

@@ -12,7 +12,9 @@ contract SafeBank {
 
     // Safe withdrawal function using Checks-Effects-Interactions pattern
     function withdraw(uint256 amount) external {
-        require(amount <= balances[msg.sender], "Insufficient balance");
+        uint256 balVulnerable;
+        balVulnerable = balances[msg.sender];
+        require(amount <= balVulnerable, "Insufficient balance");
 
         // Step 1: Check the condition (require statement above)
         

@@ -7,9 +7,10 @@ from web3 import Web3
 # Assuming ReentrancyEnv is already defined in trainv7
 from reentrancyDetector import ReentrancyDetector
 from reentrancyEnv import ReentrancyEnv
+from severityScore import SeverityScore
 
 # Load the best PPO model
-model_path = "./model_saved/trained_model_31.61.zip"
+model_path = "./model_saved/trained_model_33.97.zip"
 model = PPO.load(model_path)
 
 # Connect to a local Ethereum node (e.g., Ganache or a testnet node)
@@ -30,9 +31,9 @@ def check_and_deposit_funds(contract):
         w3.eth.wait_for_transaction_receipt(tx_hash)
         print("Deposit complete, vulnerable contract balance is now above 1 ETH.")
 
-def simulate_targeted_attack(amount_ether, target_drain_ether, vulnerable_contract, attacker_contract, web3):
+def simulate_targeted_attack(amount_ether, target_drain_ether, target_contract, attacker_contract, web3):
     print(f"Simulating attack with {amount_ether} ETH, targeting to drain {target_drain_ether} ETH")
-    vulnerable_balance_before = web3.eth.get_balance(vulnerable_contract.address)
+    vulnerable_balance_before = web3.eth.get_balance(target_contract.address)
     attacker_balance = web3.eth.get_balance(web3.eth.accounts[1])
     required_amount = web3.toWei(amount_ether, 'ether')
     target_drain_amount = web3.toWei(target_drain_ether, 'ether')
@@ -41,7 +42,7 @@ def simulate_targeted_attack(amount_ether, target_drain_ether, vulnerable_contra
         print("Attacker does not have enough Ether to perform the attack.")
         return False, 0, 0  # Return false indicating the attack couldn't proceed
 
-    gas_limit = 3000000  # Set the gas limit
+    gas_limit = 5000000  # Set the gas limit
 
     try:
         tx_hash = attacker_contract.functions.attack(target_drain_amount).transact({
@@ -53,19 +54,35 @@ def simulate_targeted_attack(amount_ether, target_drain_ether, vulnerable_contra
         print("Attack transaction mined.")
 
         # Check balances after the attack
-        vulnerable_balance_after = web3.eth.get_balance(vulnerable_contract.address)
+        vulnerable_balance_after = web3.eth.get_balance(target_contract.address)
         #attacker_balance_after = web3.eth.get_balance(web3.eth.accounts[1])
         funds_drained = vulnerable_balance_before - vulnerable_balance_after
         receipt = web3.eth.getTransactionReceipt(tx_hash)
         gas_used = receipt.gasUsed  # Retrieve the gas used from the transaction receipt
 
+        # Instantiate the ReentrancyDetector
+        detector = ReentrancyDetector(web3, target_contract)
 
-        return True, funds_drained, gas_used
+        # Pass the tx_hash as an argument to the method using the instance
+        call_count, call_depth = detector.analyze_transaction(tx_hash)
+        # Calculate severity scores based on the attack profile
+        funds_severity = SeverityScore._calculate_funds_severity(funds_drained)
+        call_count_severity = SeverityScore._calculate_call_count_severity(call_count)
+        call_depth_severity = SeverityScore._calculate_call_depth_severity(call_depth)
+        gas_used_severity = SeverityScore._calculate_gas_severity(gas_used)
+
+        # Total severity score for the attack
+        severity_score = funds_severity + call_count_severity + call_depth_severity + gas_used_severity
+
+        print(f"Attack: {True}, Call count: {call_count}, Call depth: {call_depth}, Funds drained: {web3.fromWei(funds_drained, 'ether')} ETH, Gas used: {gas_used}, Severity score: {severity_score}")
+
+
+        return True, funds_drained, gas_used, call_count, call_depth, severity_score
 
     except ValueError as e:
         # Handle the case where the transaction was blocked by the middleware
         print(f"Transaction blocked by middleware: {e}")
-        return False, 0, 0  # Indicate that the transaction was blocked and no funds were drained
+        return False, 0, 0, 0, 0, 0  # Indicate that the transaction was blocked and no funds were drained
 
 def normalize_value(value, max_value):
     """ Normalizes a value to be between 0 and 1 based on a maximum possible value """
@@ -89,17 +106,10 @@ def test_contract(target_contract, attacker_contract):
     check_and_deposit_funds(target_contract)
     target_contract_balance = w3.eth.get_balance(target_contract.address)
     attacker_balance = w3.eth.get_balance(w3.eth.accounts[1])
-    attack, funds_drained, gas_used = simulate_targeted_attack(0.0001, 0.0005, target_contract,  attacker_contract, w3)
-
-    # Assuming ReentrancyDetector returns an object with call_count and call_depth attributes
-    detector = ReentrancyDetector(target_contract, w3)
+    attack, funds_drained, gas_used, call_count, call_depth, severity_score = simulate_targeted_attack(0.0001, 0.0005, target_contract,  attacker_contract, w3)
     
-    # Access attributes from the ReentrancyDetector object
-    call_count = detector.call_count  # Use appropriate method or property
-    call_depth = detector.call_depth  # Use appropriate method or property
+    print(f"Attack: {attack}, Call count: {call_count}, Call depth: {call_depth}, Funds drained: {w3.fromWei(funds_drained, 'ether')} ETH, Gas used: {gas_used}, Severity score: {severity_score}")
 
-    # Example severity score (could be calculated based on the attack's outcome)
-    severity_score = 0  # Initially zero, could be updated based on model predictions or attack outcome
 
     # Normalize all values to be in the range [0, 1]
     normalized_reentrancy_detected = 1 if attack else 0  # 1 if attack was successful, otherwise 0
@@ -127,7 +137,7 @@ def test_contract(target_contract, attacker_contract):
     observation = state.reshape(1, -1)  # Reshape to match model's input shape
     
     # Use the PPO model to predict whether reentrancy is detected
-    action, _states = model.predict(observation, deterministic=True)
+    action, _states = model.predict(observation)
     
     return action  # Assuming action 0 = prevent (no reentrancy), action 1 = allow (reentrancy detected)
 
@@ -145,11 +155,13 @@ def load_contract(contract_name, contract_address):
 with open('deployed_contracts.json') as f:
     deployed_addresses = json.load(f)
 
-vulnerable_contract = load_contract('VulnerableContract', deployed_addresses['VulnerableContract'])
-attacker_contract = load_contract('Attacker', deployed_addresses['Attacker'])
-safeBank_contract = load_contract('SafeBank', deployed_addresses['SafeBank'])
+# vulnerable_contract = load_contract('VulnerableContract', deployed_addresses['VulnerableContract'])
+# attacker_contract = load_contract('Attacker', deployed_addresses['Attacker'])
 
-target_contract = safeBank_contract  # Change this to the contract you want to test
+vulnerable_contract = load_contract('SafeBank', deployed_addresses['SafeBank'])
+attacker_contract = load_contract('AttackerSafeBank', deployed_addresses['AttackerSafeBank'])
+
+target_contract = vulnerable_contract  # Change this to the contract you want to test
 print(f"Testing contract: {target_contract}")
 
 # Check and deposit funds if needed

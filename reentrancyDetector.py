@@ -2,20 +2,20 @@
 
 
 class ReentrancyDetector:
-    def __init__(self, vulnerable_contract, web3):
-        self.vulnerable_contract = vulnerable_contract
-        self.previous_block = web3.eth.block_number
+    def __init__(self, web3, target_contract):
+        self.target_contract = target_contract
+        # self.previous_block = web3.eth.block_number
         self.web3 = web3
         self.call_count = 0  # Initialize call count
         self.call_depth = 0  # Initialize call depth
 
-    def detect_reentrancy(self):
-        latest_block = self.web3.eth.block_number
-        block = self.web3.eth.getBlock(latest_block, full_transactions=True)
-        tx = block.transactions[-1]
-        call_count, call_depth = self.analyze_transaction(tx.hash)
-        self.call_count = call_count if call_count > 1 else 0 # Your logic to set call_count
-        self.call_depth = call_depth if call_count > 1 else 0 # Your logic to set call_depth
+    # def detect_reentrancy(self):
+    #     latest_block = self.web3.eth.block_number
+    #     block = self.web3.eth.getBlock(latest_block, full_transactions=True)
+    #     tx = block.transactions[-1]
+    #     call_count, call_depth = self.analyze_transaction(tx.hash)
+    #     self.call_count = call_count if call_count > 1 else 0 # Your logic to set call_count
+    #     self.call_depth = call_depth if call_count > 1 else 0 # Your logic to set call_depth
         #return call_count, call_depth if call_count > 1 or call_depth > 1 else 0, 0
 
     def analyze_transaction(self, tx_hash):
@@ -50,7 +50,7 @@ class ReentrancyDetector:
         if op in ['CALL', 'DELEGATECALL', 'CALLCODE', 'STATICCALL']:
             if len(stack) >= 2:
                 to_address = '0x' + stack[-2][-40:].lower()
-                contract_address = self.vulnerable_contract.address.lower()
+                contract_address = self.target_contract.address.lower()
 
                 if to_address == contract_address:
                     for i in range(len(stack) - 1):
